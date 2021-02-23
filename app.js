@@ -30,9 +30,12 @@ client.on('commandError', (command, err) => {
     console.error(err);
 });
 const add = require('./commands/pickups/add');
+const remove = require('./commands/pickups/remove');
 client.on('message', (message) => {
     if (message.content.startsWith('+'))
         add.run(message);
+    if (message.content.startsWith('-'))
+        remove.run(message);
 });
 const env = process.env.NODE_ENV || 'TEST';
 let token;

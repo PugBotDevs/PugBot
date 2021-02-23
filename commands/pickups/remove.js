@@ -9,7 +9,7 @@ const cache = require('../../app').cache;
 
 const run = async(message) => {
     let pickupsName;
-    if (message.content.startsWith('+')) {
+    if (message.content.startsWith('-')) {
         if (message.content.indexOf(' ') >= 0) return message.reply('No pickups found!');
         pickupsName = message.content.substring(1);
         // if(pickupsName == '-')
