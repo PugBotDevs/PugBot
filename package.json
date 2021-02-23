@@ -1,0 +1,31 @@
+{
+  "name": "pubochod",
+  "version": "1.0.0",
+  "description": "Pickups bot",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app.js",
+    "start": "NODE_ENV=production node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PsiAphex/pubochod.git"
+  },
+  "keywords": [],
+  "author": "PsiAphex",
+  "license": "ISC",
+  "dependencies": {
+    "@keyv/mongo": "^1.1.0",
+    "colors": "^1.4.0",
+    "discord.js": "^12.5.1",
+    "discord.js-commando": "^0.12.2",
+    "dotenv": "^8.2.0",
+    "keyv": "^4.0.3",
+    "ts-trueskill": "^3.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.20.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1"
+  }
+}
