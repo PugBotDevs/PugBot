@@ -1,4 +1,4 @@
-# discord-js-sample
+# Pugbot
 Sample bot
 
 #Installation
