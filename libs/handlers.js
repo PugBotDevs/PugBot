@@ -1,12 +1,21 @@
-const states = require('../structures/Game').states;
+const Game = require('../structures/Game');
+const Pickups = require('../structures/Pickups');
+const states = Game.states;
 
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, TextChannel } = require('discord.js');
 
 const pCache = require('../app').cache.pickups;
 const Pickups = require('../structures/Pickups');
 
 const tick = '✅';
 const no = '⛔';
+
+/**
+ * Initiates READY state for a game
+ * @param {Game} game 
+ * @param {Pickups} pickups 
+ * @param {TextChannel} channel 
+ */
 const readyHandler = async(game, pickups, channel) => {
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize + 1);
     game.notReadyMembers = Array.from(game.members);
@@ -56,12 +65,23 @@ const readyHandler = async(game, pickups, channel) => {
         });
     });
 };
+
+/**
+ * Returns a ready state string with non-ready members for a game
+ * @param {Game} game 
+ */
 const refreshReadyState = (game) => {
     let string = `**Match ID: ${game.id}**\n**${game.name}** pickups is now in waiting ready state!\n`;
     string += `Waiting for ${game.notReadyMembers.map(mem => { return `<@${mem}>`; }).join(',')}\nPlease react with :white_check_mark: to **check-in** or :no_entry: to **abort**!`;
     return string;
 };
 
+/**
+ * Initiates match making for a game
+ * @param {Game} game 
+ * @param {Pickups} pickups 
+ * @param {TextChannel} channel 
+ */
 const matchMaker = (game, pickups, channel) => {
     console.log('making match', game);
     if (game.members.length == 2) {
