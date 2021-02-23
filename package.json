@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "node app.js",
-    "start": "NODE_ENV=production node app.js"
+    "start": "NODE_ENV=production node app.js",
+    "lint" : "./node_modules/.bin/eslint --fix *.js structures/*.js libs/*.js commands/*/*.js"
   },
   "repository": {
     "type": "git",

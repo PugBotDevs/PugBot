@@ -16,32 +16,30 @@ module.exports.cache = cache;
 client.registry
     .registerDefaultTypes()
     .registerGroups([
-        ['pickups','All basic commands relating to pickups']
+        ['pickups', 'All basic commands relating to pickups'],
     ])
     .registerDefaultGroups()
-	.registerDefaultCommands()
+    .registerDefaultCommands()
     .registerCommandsIn(path.join(__dirname, 'commands'));
-client.once('ready',()=>{
-    console.log(`LOGGED IN!`);
-
-})
-client.on('error',console.error)
+client.once('ready', () => {
+    console.log('LOGGED IN!');
+});
+client.on('error', console.error);
 
 client.on('commandError', (command, err) => {
-    console.error(err)
-})
+    console.error(err);
+});
 const add = require('./commands/pickups/add');
-client.on('message',(message) => {
-    if (message.content.startsWith('+')) {
-        add.run(message)
-    }
-})
-const env = process.env.NODE_ENV || "TEST";
+client.on('message', (message) => {
+    if (message.content.startsWith('+'))
+        add.run(message);
+});
+const env = process.env.NODE_ENV || 'TEST';
 let token;
-if (env.toUpperCase() == 'PRODUCTION') {
+if (env.toUpperCase() == 'PRODUCTION')
     token = process.env.TOKEN;
-} else {
+else
     token = process.env.TEST;
-}
+
 
 client.login(token);
