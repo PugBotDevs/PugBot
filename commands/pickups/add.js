@@ -4,7 +4,7 @@ const {readyHandler, updateCache} = require('../../libs/handlers');
 
 const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
-const db = require('../../db').base;
+const db = require('../../db').channels;
 const cache = require('../../app').cache;
 const Pickups = require('../../structures/Pickups');
 

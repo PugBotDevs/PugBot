@@ -1,5 +1,5 @@
 const {Command} = require('discord.js-commando');
-const db = require('../../db').base;
+const db = require('../../db').channels;
 const cache = require('../../app').cache;
 const Pickups = require('../../structures/Pickups');
 module.exports = class command extends Command {
@@ -28,6 +28,7 @@ module.exports = class command extends Command {
         if (!pickupsConf || !pickupsConf.arr) {
             pickupsConf = {
                 arr: new Array(),
+                count: 1,
             }
         }
         if (pickupsConf.arr.find(x => x.name == name)) {

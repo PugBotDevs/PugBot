@@ -4,7 +4,7 @@ const Pickups = require('../../structures/Pickups');
 const {MessageEmbed} = require('discord.js');
 
 const { Command } = require('discord.js-commando');
-const db = require('../../db').base;
+const db = require('../../db').channels;
 const cache = require('../../app').cache;
 module.exports = class command extends Command {
     constructor (client) {

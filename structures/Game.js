@@ -1,6 +1,3 @@
-const DB = require('../db');
-const db = DB.base;
-db;
 const states = ['QUEUE', 'READY', 'PROGRESS', 'DONE'];
 class Game {
     constructor(name, size, opts, channel, id) {
@@ -22,7 +19,6 @@ class Game {
     addMember(member) {
         this.members.push(member);
         this.size += 1;
-        this.updateDBCount(this.size);
         if (this.members.length >= this.maxSize) {
             this.notReadyMembers = this.members;
             return true;
@@ -54,12 +50,6 @@ class Game {
     done() {
         this.state = states[3];
     }
-    async updateDBCount(count) {
-        const res = await db.get(this.channel);
-        res.count = count;
-        await db.set(this.channel, res);
-    }
-
 }
 
 module.exports = Game;
