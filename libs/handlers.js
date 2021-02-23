@@ -3,12 +3,13 @@ const states = require('../structures/Game').states;
 const {MessageEmbed} = require('discord.js');
 
 const pCache = require('../app').cache.pickups;
-pCache;
+const Pickups = require('../structures/Pickups');
+
 const tick = '✅';
 const no = '⛔';
 const readyHandler = async(game, pickups, channel) => {
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize+1);
-    game.notReadyMembers = game.members
+    game.notReadyMembers = Array.from(game.members)
     let string = refreshReadyState(game);
     channel.send(string).then( message => {
         message.react(tick).then(()=>message.react(no));
@@ -17,10 +18,9 @@ const readyHandler = async(game, pickups, channel) => {
         }
         const collector = message.createReactionCollector(filter, { time: game.opts.readyWait || 120000});
         collector.on('collect', (r, u)=>{
-            console.log('COLELCTION', r.emoji.name, u.username)
             if (r.emoji.name == tick) {
                 // Remove user from not Ready
-                game.notReadyMembers = game.notReadyMembers.splice(game.notReadyMembers.indexOf(u.id),1);
+                game.notReadyMembers.splice(game.notReadyMembers.indexOf(u.id),1);
                 if (game.notReadyMembers.length > 0) {
                     string = refreshReadyState(game);
                     message.edit(string);
@@ -42,7 +42,8 @@ const readyHandler = async(game, pickups, channel) => {
             }
         })
         collector.on('end', (coll, reason) => {
-            console.log('ended collection due to reason', reason)
+            reason = 'ended collection due to reason'+ reason;
+            reason;
             if (game.state == states[1]) {
                 string = `${game.notReadyMembers.map(mem => `<@${mem}>`).join(',')} was(were) not ready in time`
                 message.edit(string);
@@ -62,20 +63,21 @@ const refreshReadyState = (game) => {
 }
 
 const matchMaker = (game, pickups, channel) => {
-    console.log('making match')
+    console.log('making match', game)
     if (game.members.length == 2) {
-        game.teams.alpha = game.members[0];
-        game.teams.beta = game.members[1];
+        game.teams.alpha.push(game.members[0]);
+        game.teams.beta.push(game.members[1]);
     } else {
         switch (game.opts.pick) {
             case 'AUTO': {
                 const unpicked = new Array(game.members);
                 while (unpicked.length > 1){
-                    game.teams.alpha.append(unpicked.pop(Math.random()*(unpicked.length-1)))
-                    game.teams.beta.append(unpicked.pop(Math.random()*(unpicked.length-1)))
+                    console.log(unpicked.pop(Math.random()*(unpicked.length-1)))
+                    game.teams.alpha.push(unpicked.pop(Math.random()*(unpicked.length-1)))
+                    game.teams.beta.push(unpicked.pop(Math.random()*(unpicked.length-1)))
                 }
                 if (unpicked.length){
-                    game.teams.alpha.append(unpicked.pop(0))
+                    game.teams.alpha.push(unpicked.pop(0))
                 }   
             }
         }
@@ -84,7 +86,8 @@ const matchMaker = (game, pickups, channel) => {
         channel.send(game.members.map(mem => `<@${mem}>`).join(','))
         channel.send(new MessageEmbed()
             .setTitle('TEAMS READY!')
-            .setDescription(`${game.teams.alpha.map(mem => `<@${mem}>`).join(',')}\n\t\tVERSUS\n${game.teams.beta.map(mem => `<@${mem}>`).join(',')}`)
+            .setColor('RED')
+            .setDescription(`${game.teams.alpha.map(mem => `<@${mem}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem}>`).join(',')}`)
         )
     } else {
         channel.send('Failed to matchmake!')
@@ -93,9 +96,11 @@ const matchMaker = (game, pickups, channel) => {
 }
 
 const updateCache = (game, pickups, channel) => {
+    if (!(pickups instanceof Pickups)) throw new Error('Received deserialized!');
     pickups.games[game.id] = game;
     pCache[channel.id][pickups.name] = pickups;
 }
 module.exports = {
     readyHandler,
+    updateCache
 }

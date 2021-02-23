@@ -1,6 +1,6 @@
 const states = require('../../structures/Game').states;
 
-const {readyHandler} = require('../../libs/handlers');
+const {readyHandler, updateCache} = require('../../libs/handlers');
 
 const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
@@ -13,6 +13,7 @@ const run = async (message) => {
     if (message.content.startsWith('+')) {
         if (message.content.indexOf(' ') >= 0 ) return message.reply('No pickups found!');
         pickupsName = message.content.substring(1);
+        //if(pickupsName == '+')
     } else {
         pickupsName = message.content.split(' ')[1];
     }
@@ -39,6 +40,7 @@ const run = async (message) => {
         game = pickups.add(cache.pickupsCount[message.channel.id]);
     }
     const res = game.addMember(message.author.id);
+    updateCache(game, pickups, message.channel)
     message.reply(new MessageEmbed().setTitle('Succesfully added to queue of '+game.name).setDescription(`${game.size}/${game.maxSize} people in queue`).setColor('ORANGE').setFooter('ID: '+game.id))
     if (res) {
         readyHandler(game, pickups, message.channel);
