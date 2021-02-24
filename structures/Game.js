@@ -17,7 +17,10 @@ class Game {
         };
         return this;
     }
-
+    /**
+     * @param  {String} Member ID
+     * @returns {Boolean} True if game is full and false if game is not full
+     */
     addMember(member) {
         this.members.push(member);
         this.size += 1;
@@ -27,7 +30,10 @@ class Game {
         } else
             return false;
     }
-
+    /**
+     * @param  {String} Member ID
+     * @returns {Boolean} True if member is found
+     */
     removeMember(member) {
         const index = this.members.indexOf(member);
         this.size -= 1;
@@ -37,21 +43,29 @@ class Game {
         } else
             return false;
     }
-
+    /**
+     * Changes the state of the game to queue state
+     */
     queue() {
         this.state = states[0];
         return this;
     }
-
+    /**
+     * Changes the state of the game to ready wait
+     */
     start() {
         this.state = states[1];
         return this;
     }
-
+    /**
+     * Changes the state of the game to progress (Match is ongoing)
+     */
     ready() {
         this.state = states[2];
     }
-
+    /**
+     * Changes the state of match to done
+     */
     done() {
         this.state = states[3];
     }
