@@ -1,6 +1,4 @@
 const { Command } = require('discord.js-commando');
-const db = require('../../db').channels;
-const cache = require('../../app').cache;
 
 module.exports = class command extends Command {
 
@@ -16,6 +14,9 @@ module.exports = class command extends Command {
     }
 
     async run(message, args = '') {
+        const cache = this.client.cache;
+        const db = this.client.db.channels;
+        
         args = args.split(' ');
         if (!args || args.length != 1)
             return message.reply('I Need one argument (Pickups Name)');

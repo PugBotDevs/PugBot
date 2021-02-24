@@ -1,6 +1,6 @@
 const Game = require('./Game');
 // eslint-disable-next-line no-unused-vars
-const db = require('../db').channels;
+const db = require('../app').db.channels;
 const cacheCount = require('../app').cache.pickupsCount;
 class Pickups {
 

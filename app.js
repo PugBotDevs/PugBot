@@ -14,10 +14,12 @@ const client = new CommandoClient({
     unknownCommandResponse: false, // Set this to true if you want to send a message when a user uses the prefix not followed by a command
 });
 
-require('./db').init();
 module.exports.cache = cache;
+module.exports.db = {};
 
-client.registry
+client.once('ready', () => {
+    console.log('LOGGED IN!');
+    client.registry
     .registerDefaultTypes()
     .registerGroups([
         ['pickups', 'All basic commands relating to pickups'],
@@ -25,9 +27,6 @@ client.registry
     .registerDefaultGroups()
     .registerDefaultCommands()
     .registerCommandsIn(path.join(__dirname, 'commands'));
-
-client.once('ready', () => {
-    console.log('LOGGED IN!');
 });
 
 client.on('error', console.error);
@@ -36,17 +35,25 @@ client.on('commandError', (command, err) => {
     console.error(err);
 });
 
-const add = require('./commands/pickups/add');
-const remove = require('./commands/pickups/remove');
-client.on('message', (message) => {
-    if (message.content.startsWith('+'))
-        add.run(message);
-    if (message.content.startsWith('-'))
-        remove.run(message);
-});
 
 const env = process.env.NODE_ENV || 'TEST';
 let token = (env.toUpperCase() == 'PRODUCTION') ? process.env.TOKEN : process.env.TEST;
 
 
-client.login(token);
+(async function main() {
+
+    await require('./db').init(client);
+    client.cache = cache;
+    module.exports = client;
+
+    client.login(token);
+
+    const add = require('./commands/pickups/add');
+    const remove = require('./commands/pickups/remove');
+    client.on('message', (message) => {
+        if (message.content.startsWith('+'))
+            add.run(message);
+        if (message.content.startsWith('-'))
+            remove.run(message);
+    });
+})()

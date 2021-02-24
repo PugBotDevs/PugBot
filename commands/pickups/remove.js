@@ -4,9 +4,8 @@ const { updateCache } = require('../../libs/handlers');
 
 const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
-const cache = require('../../app').cache;
 
-
+let cache;
 const run = async(message) => {
     let pickupsName;
     if (message.content.startsWith('-')) {
@@ -44,6 +43,7 @@ module.exports = class command extends Command {
             description: 'Unqueue from a pickup',
             guildOnly: true,
         });
+        cache = client.cache;
     }
 
     async run(message) {

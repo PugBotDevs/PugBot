@@ -4,9 +4,10 @@ const { readyHandler, updateCache } = require('../../libs/handlers');
 
 const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
-const db = require('../../db').channels;
-const cache = require('../../app').cache;
 const Pickups = require('../../structures/Pickups');
+
+let cache;
+let db;
 
 const run = async(message) => {
     let pickupsName;
@@ -55,6 +56,8 @@ module.exports = class command extends Command {
             description: 'Queue to a pickup',
             guildOnly: true,
         });
+        cache = client.cache;
+        db = client.db.channels;
     }
 
     async run(message) {

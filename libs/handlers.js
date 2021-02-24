@@ -1,6 +1,7 @@
 const Game = require('../structures/Game');
 const states = Game.states;
 
+// eslint-disable-next-line no-unused-vars
 const { MessageEmbed, TextChannel } = require('discord.js');
 
 const pCache = require('../app').cache.pickups;
@@ -11,9 +12,9 @@ const no = '⛔';
 
 /**
  * Initiates READY state for a game
- * @param {Game} game 
- * @param {Pickups} pickups 
- * @param {TextChannel} channel 
+ * @param {Game} game
+ * @param {Pickups} pickups
+ * @param {TextChannel} channel
  */
 const readyHandler = async(game, pickups, channel) => {
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize + 1);
@@ -67,7 +68,7 @@ const readyHandler = async(game, pickups, channel) => {
 
 /**
  * Returns a ready state string with non-ready members for a game
- * @param {Game} game 
+ * @param {Game} game
  */
 const refreshReadyState = (game) => {
     let string = `**Match ID: ${game.id}**\n**${game.name}** pickups is now in waiting ready state!\n`;
@@ -77,9 +78,9 @@ const refreshReadyState = (game) => {
 
 /**
  * Initiates match making for a game
- * @param {Game} game 
- * @param {Pickups} pickups 
- * @param {TextChannel} channel 
+ * @param {Game} game
+ * @param {Pickups} pickups
+ * @param {TextChannel} channel
  */
 const matchMaker = (game, pickups, channel) => {
     console.log('making match', game);

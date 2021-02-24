@@ -4,7 +4,7 @@ const { MongoClient } = require('mongodb');
 const env_uri = process.env.DB;
 
 class Client {
-    
+
     /**
      * @param  {} uri=MONGO DB URL
      * @returns {Client}
@@ -17,8 +17,8 @@ class Client {
         this.dbs = new Array();
         return this;
     }
-    
-    
+
+
     connect() {
         return new Promise(async(res, rej) => {
             await this.client.connect().catch(err => {
