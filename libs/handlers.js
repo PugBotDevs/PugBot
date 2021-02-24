@@ -1,5 +1,4 @@
 const Game = require('../structures/Game');
-const Pickups = require('../structures/Pickups');
 const states = Game.states;
 
 const { MessageEmbed, TextChannel } = require('discord.js');
