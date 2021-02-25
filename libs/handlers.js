@@ -1,10 +1,9 @@
 const Game = require('../structures/Game');
 const states = Game.states;
-
+const { updateCache } = require('./utils');
 // eslint-disable-next-line no-unused-vars
 const { MessageEmbed, TextChannel } = require('discord.js');
-
-const pCache = require('../app').cache.pickups;
+// eslint-disable-next-line no-unused-vars
 const Pickups = require('../structures/Pickups');
 
 const tick = '✅';
@@ -21,10 +20,8 @@ const readyHandler = async(game, pickups, channel) => {
     game.notReadyMembers = Array.from(game.members);
     let string = refreshReadyState(game);
     channel.send(string).then(message => {
-        message.react(tick).then(() => { return message.react(no); });
-        const filter = (reaction, user) => {
-            return [tick, no].includes(reaction.emoji.name) && game.members.includes(user.id);
-        };
+        message.react(tick).then(() => message.react(no));
+        const filter = (reaction, user) => [tick, no].includes(reaction.emoji.name) && game.members.includes(user.id);
         const collector = message.createReactionCollector(filter, { time: game.opts.readyWait || 120000 });
         collector.on('collect', (r, u) => {
             if (r.emoji.name == tick) {
@@ -54,7 +51,7 @@ const readyHandler = async(game, pickups, channel) => {
             reason = 'ended collection due to reason' + reason;
             reason;
             if (game.state == states[1]) {
-                string = `${game.notReadyMembers.map(mem => { return `<@${mem}>`; }).join(',')} was(were) not ready in time`;
+                string = `${game.notReadyMembers.map(mem => `<@${mem}>`).join(',')} was(were) not ready in time`;
                 message.edit(string);
                 game.state = states[0];
                 game.notReadyMembers.forEach(mem => {
@@ -72,7 +69,7 @@ const readyHandler = async(game, pickups, channel) => {
  */
 const refreshReadyState = (game) => {
     let string = `**Match ID: ${game.id}**\n**${game.name}** pickups is now in waiting ready state!\n`;
-    string += `Waiting for ${game.notReadyMembers.map(mem => { return `<@${mem}>`; }).join(',')}\nPlease react with :white_check_mark: to **check-in** or :no_entry: to **abort**!`;
+    string += `Waiting for ${game.notReadyMembers.map(mem => `<@${mem}>`).join(',')}\nPlease react with :white_check_mark: to **check-in** or :no_entry: to **abort**!`;
     return string;
 };
 
@@ -102,22 +99,17 @@ const matchMaker = (game, pickups, channel) => {
         }
     }
     if (game.teams.alpha.length && game.teams.beta.length) {
-        channel.send(game.members.map(mem => { return `<@${mem}>`; }).join(','));
+        channel.send(game.members.map(mem => `<@${mem}>`).join(','));
         channel.send(new MessageEmbed()
             .setTitle('TEAMS READY!')
             .setColor('RED')
-            .setDescription(`${game.teams.alpha.map(mem => { return `<@${mem}>`; }).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => { return `<@${mem}>`; }).join(',')}`),
+            .setDescription(`${game.teams.alpha.map(mem => `<@${mem}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem}>`).join(',')}`),
         );
     } else
         channel.send('Failed to matchmake!');
 };
 
-const updateCache = (game, pickups, channel) => {
-    if (!(pickups instanceof Pickups)) throw new Error('Received deserialized!');
-    pickups.games[game.id] = game;
-    pCache[channel.id][pickups.name] = pickups;
-};
+
 module.exports = {
     readyHandler,
-    updateCache,
 };

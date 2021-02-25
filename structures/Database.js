@@ -21,9 +21,7 @@ class Client {
 
     connect() {
         return new Promise(async(res, rej) => {
-            await this.client.connect().catch(err => {
-                return rej(err);
-            });
+            await this.client.connect().catch(err => rej(err));
             this.connected = true;
             this.dbs.forEach(t => {
                 this[t] = this[t].connect(this.client);
@@ -59,9 +57,7 @@ class DB {
 
     get(id) {
         return new Promise(async(res, rej) => {
-            const get = await this.ops.findOne({ id: { $eq: id } }).catch(err => {
-                return rej(err);
-            });
+            const get = await this.ops.findOne({ id: { $eq: id } }).catch(err => rej(err));
             if (get)
                 res(get);
             else
@@ -73,9 +69,7 @@ class DB {
         return new Promise(async(res, rej) => {
             const reply = await this.ops.updateOne({
                 id: { $eq: id },
-            }, { $set: obj }, { upsert: true }).catch(error => {
-                return rej(error);
-            });
+            }, { $set: obj }, { upsert: true }).catch(error => rej(error));
             if (reply)
                 res(obj);
 

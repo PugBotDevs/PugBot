@@ -16,7 +16,7 @@ module.exports = class command extends Command {
     async run(message, args = '') {
         const cache = this.client.cache;
         const db = this.client.db.channels;
-        
+
         args = args.split(' ');
         if (!args || args.length != 1)
             return message.reply('I Need one argument (Pickups Name)');
@@ -27,7 +27,7 @@ module.exports = class command extends Command {
         if (!pickupsConf || !pickupsConf.arr)
             return message.reply('Did not find any pickups in this channel!');
 
-        const pickupsIndex = pickupsConf.arr.findIndex(x => { return x.name == name; });
+        const pickupsIndex = pickupsConf.arr.findIndex(x => x.name == name);
         if (pickupsIndex < 0)
             return message.reply('No Pickups with that name was found!');
 
@@ -35,7 +35,7 @@ module.exports = class command extends Command {
         const set = await db.set(message.channel.id, pickupsConf);
         if (set) {
             if (!cache.pickups[message.channel.id]) cache.pickups[message.channel.id] = [];
-            const cacheIndex = cache.pickups[message.channel.id].findIndex(x => { return x.name == name; });
+            const cacheIndex = cache.pickups[message.channel.id].findIndex(x => x.name == name);
             if (cacheIndex >= 0)
                 cache.pickups[message.channel.id].splice(cacheIndex, 1);
 

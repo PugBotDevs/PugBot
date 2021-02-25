@@ -20,13 +20,13 @@ module.exports.db = {};
 client.once('ready', () => {
     console.log('LOGGED IN!');
     client.registry
-    .registerDefaultTypes()
-    .registerGroups([
-        ['pickups', 'All basic commands relating to pickups'],
-    ])
-    .registerDefaultGroups()
-    .registerDefaultCommands()
-    .registerCommandsIn(path.join(__dirname, 'commands'));
+        .registerDefaultTypes()
+        .registerGroups([
+            ['pickups', 'All basic commands relating to pickups'],
+        ])
+        .registerDefaultGroups()
+        .registerDefaultCommands()
+        .registerCommandsIn(path.join(__dirname, 'commands'));
 });
 
 client.on('error', console.error);
@@ -37,11 +37,10 @@ client.on('commandError', (command, err) => {
 
 
 const env = process.env.NODE_ENV || 'TEST';
-let token = (env.toUpperCase() == 'PRODUCTION') ? process.env.TOKEN : process.env.TEST;
+const token = (env.toUpperCase() == 'PRODUCTION') ? process.env.TOKEN : process.env.TEST;
 
 
 (async function main() {
-
     await require('./db').init(client);
     client.cache = cache;
     module.exports = client;
@@ -56,4 +55,4 @@ let token = (env.toUpperCase() == 'PRODUCTION') ? process.env.TOKEN : process.en
         if (message.content.startsWith('-'))
             remove.run(message);
     });
-})()
+})();
