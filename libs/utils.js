@@ -1,7 +1,8 @@
-const Discord = require('discord.js');
+// eslint-disable-next-line no-unused-vars
+const Discord = require('discord.js'), Game = require('../structures/Game');
+
 const { pickups: pCache, pickupsCount: cCache } = require('../app').cache;
 const Pickups = require('../structures/Pickups');
-const Game = require('../structures/Game');
 const db = require('../app').db.channels;
 
 /**
