@@ -31,6 +31,7 @@ class Client {
     }
 
     createDatabase(db_name, coll, name) {
+        name = name || coll;
         const db = new DB(db_name, coll);
         this[name] = db;
         this.dbs.push(name);
