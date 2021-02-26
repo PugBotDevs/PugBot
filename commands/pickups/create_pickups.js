@@ -1,7 +1,6 @@
 const { Command } = require('discord.js-commando');
-const db = require('../../db').channels;
-const cache = require('../../app').cache;
 const Pickups = require('../../structures/Pickups');
+
 module.exports = class command extends Command {
 
     constructor(client) {
@@ -16,6 +15,9 @@ module.exports = class command extends Command {
     }
 
     async run(message, args = '') {
+        const cache = this.client.cache;
+        const db = this.client.db.channels;
+
         args = args.split(' ');
         if (!args || args.length != 2)
             return message.reply('Need 2 arguments  (Eg: PickupsName MembersNum)');
@@ -33,7 +35,7 @@ module.exports = class command extends Command {
                 count: 1,
             };
         }
-        if (pickupsConf.arr.find(x => { return x.name == name; }))
+        if (pickupsConf.arr.find(x => x.name == name))
             return message.reply('Pickups with that name already exists!');
 
         pickupsConf.arr.push(pickups.deserialize());

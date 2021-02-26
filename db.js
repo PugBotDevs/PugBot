@@ -1,12 +1,11 @@
 /* eslint-disable no-unused-vars */
 module.exports = {};
 const DatabaseClient = require('./structures/Database');
-module.exports.init = async() => {
+module.exports.init = async(client) => {
     const Client = new DatabaseClient();
-    const channels = Client.createDatabase('base', 'channels', 'channels');
+    const channels = Client.createDatabase(process.env.DB_NAME || 'base', 'channels', 'channels');
 
-    Client.connect().then(() => {
-        console.log('DB CONNECTED');
-    });
-    module.exports = Client;
+    await Client.connect();
+    console.log('DB CONNECTED');
+    client.db = Client;
 };

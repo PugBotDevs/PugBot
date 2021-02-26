@@ -4,8 +4,6 @@ const Pickups = require('../../structures/Pickups');
 const { MessageEmbed } = require('discord.js');
 
 const { Command } = require('discord.js-commando');
-const db = require('../../db').channels;
-const cache = require('../../app').cache;
 module.exports = class command extends Command {
 
     constructor(client) {
@@ -20,6 +18,8 @@ module.exports = class command extends Command {
     }
 
     async run(message) {
+        const cache = this.client.cache;
+        const db = this.client.db.channels;
         let pickups = cache.pickups[message.channel.id];
         if (!pickups) {
             pickups = [];
