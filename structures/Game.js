@@ -38,9 +38,9 @@ class Game {
      */
     removeMember(member) {
         const index = this.members.indexOf(member);
-        this.size -= 1;
         if (index >= 0) {
             this.members.splice(index, 1);
+            this.size -= 1;
             return true;
         } else
             return false;
