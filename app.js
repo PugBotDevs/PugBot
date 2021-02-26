@@ -6,6 +6,7 @@ const path = require('path');
 const cache = {
     pickups: {},
     pickupsCount: {},
+    users: {},
 };
 
 const client = new CommandoClient({
