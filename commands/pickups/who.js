@@ -20,7 +20,7 @@ module.exports = class command extends Command {
     async run(message) {
         const cache = this.client.cache;
         const db = this.client.db.channels;
-        let pickups = cache.pickups[message.channel.id];
+        let pickups = cache.pickups.get(message.channel.id);
         if (!pickups) {
             pickups = [];
             const pickupsArr = await db.get(message.channel.id);
@@ -28,7 +28,7 @@ module.exports = class command extends Command {
             pickupsArr.arr.forEach(x => {
                 pickups.push(new Pickups(x));
             });
-            cache.pickups[message.channel.id] = pickups;
+            cache.pickups.set(message.channel.id, pickups);
         }
         const embed = new MessageEmbed()
             .setTitle('Currently active pickups')

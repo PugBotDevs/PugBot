@@ -28,8 +28,16 @@ const run = async(message) => {
             const pickups = pickupsChannel.find(x => x.name == pickupsName);
             if (pickups) {
                 let game = Object.values(pickups.games).find(x => x.state == states[0]);
-                if (!game)
-                    game = pickups.add(cache.pickupsCount[message.channel.id]);
+                if (!game) {
+                    let count = cache.pickupsCount.get(message.channel.id);
+                    if (!count) {
+                        pickupsChannel.forEach(x => {
+                            if (x.count > count) count = x.count;
+                        });
+                    }
+                    if (!count) count = 1;
+                    game = pickups.add(count);
+                }
                 const res = game.addMember(message.author.id);
                 if (res)
                     readyHandler(game, pickups, message.channel);

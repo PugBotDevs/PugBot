@@ -42,9 +42,10 @@ module.exports = class command extends Command {
 
         const set = await db.set(message.channel.id, pickupsConf);
         if (set) {
-            if (!cache.pickups[message.channel.id]) cache.pickups[message.channel.id] = [];
-            cache.pickups[message.channel.id].push(pickups);
-            console.log(cache.pickups[message.channel.id]);
+            const pickupsChannel = cache.pickups.get(message.channel.id);
+            if (!pickupsChannel) cache.pickups.set(message.channel.id, {});
+            pickupsChannel.push(pickups);
+            cache.pickups.set(message.channel.id, pickupsChannel);
             return message.reply(`Successfully added pickups: ${name}\n do !queue ${name} or +${name} to queue for it, it will require ${pickups.size} players..`);
         } else
             return message.reply('Fatal Error! DM Devs!');

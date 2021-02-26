@@ -34,7 +34,7 @@ class User {
     }
 
     updateCache() {
-        uCache[this.id] = this;
+        return uCache.set(this.id, this);
     }
 
     async updateDB() {

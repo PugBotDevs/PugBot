@@ -1,12 +1,13 @@
 require('dotenv').config();
 
 const { CommandoClient } = require('discord.js-commando');
+const { Collection } = require('discord.js');
 const path = require('path');
 
 const cache = {
-    pickups: {},
-    pickupsCount: {},
-    users: {},
+    pickups: new Collection(),
+    pickupsCount: new Collection(),
+    users: new Collection(),
 };
 
 const client = new CommandoClient({

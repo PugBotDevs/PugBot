@@ -13,7 +13,10 @@ const db = require('../app').db.channels;
 const updateCache = (game, pickups, channel) => {
     if (!(pickups instanceof Pickups)) throw new Error('Received deserialized!');
     pickups.games[game.id] = game;
-    pCache[channel.id][pickups.name] = pickups;
+    let pickupsChannel = pCache.get(channel.id);
+    if (!pickupsChannel) pickupsChannel = {};
+    pickupsChannel[pickups.name] = pickups;
+    pCache.set(channel.id, pickupsChannel);
 };
 
 /**
@@ -22,14 +25,14 @@ const updateCache = (game, pickups, channel) => {
  * @returns {Array<Pickups>} An Array of Pickups instances
  */
 const getPickupChannel = async(channel) => {
-    let pickupsChannel = pCache[channel];
+    let pickupsChannel = pCache.get(channel);
     if (!pickupsChannel) {
         pickupsChannel = await db.get(channel);
         if (typeof pickupsChannel == 'object' && pickupsChannel.arr) {
             pickupsChannel = pickupsChannel.arr;
-            cCache[channel] = pickupsChannel.count;
+            cCache.set(channel, pickupsChannel.count);
             pickupsChannel = pickupsChannel.map(pickups => new Pickups(pickups));
-            pCache[channel] = pickupsChannel;
+            pCache.set(channel, pickupsChannel);
         } else pickupsChannel = undefined;
     }
     return pickupsChannel;

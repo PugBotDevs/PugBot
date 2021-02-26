@@ -17,7 +17,7 @@ const run = async(message) => {
 
     if (!pickupsNames) return message.reply('No pickups found!');
 
-    const pickupsChannel = cache.pickups[message.channel.id];
+    const pickupsChannel = cache.pickups.get(message.channel.id);
     if (!pickupsChannel) return;
     let left = new Array();
     if (pickupsNames instanceof Array) {

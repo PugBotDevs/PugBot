@@ -52,7 +52,7 @@ class Pickups {
     async updateDBCount(count) {
         const res = await db.get(this.channel);
         res.count = count;
-        cacheCount[this.channel] = count;
+        cacheCount.set(this.channel, count);
         await db.set(this.channel, res);
     }
 

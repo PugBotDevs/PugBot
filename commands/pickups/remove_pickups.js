@@ -34,11 +34,11 @@ module.exports = class command extends Command {
         pickupsConf.arr.splice(pickupsIndex, 1);
         const set = await db.set(message.channel.id, pickupsConf);
         if (set) {
-            if (!cache.pickups[message.channel.id]) cache.pickups[message.channel.id] = [];
-            const cacheIndex = cache.pickups[message.channel.id].findIndex(x => x.name == name);
+            const pickupsChannel = cache.pickups.get(message.channel.id);
+            if (!pickupsChannel) cache.pickups.set(message.channel.id, {});
+            const cacheIndex = pickupsChannel.findIndex(x => x.name == name);
             if (cacheIndex >= 0)
-                cache.pickups[message.channel.id].splice(cacheIndex, 1);
-
+                pickupsChannel.splice(cacheIndex, 1);
             return message.reply(`Successfully removed pickups: ${name}`);
         } else
             return message.reply('Fatal Error! DM Devs!');
