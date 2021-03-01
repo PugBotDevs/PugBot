@@ -15,3 +15,5 @@ class PugClient extends CommandoClient {
         return this.db;
     }
 }
+
+module.exports = PugClient;

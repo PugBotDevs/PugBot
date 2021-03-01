@@ -9,7 +9,7 @@ class PickupsManager {
     }
 
     fetchChannel(id) {
-        return new Promise((res, rej) => {
+        return new Promise(async (res, rej) => {
             // Reject if the parent client does not have a database connected to it
             if(!this.client.db) rej(new Error("Database Not Connected"));
 

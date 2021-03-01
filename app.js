@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const { CommandoClient } = require('discord.js-commando');
+const PugClient = require("./structures/PugClient");
 const { Collection } = require('discord.js');
 const path = require('path');
 
@@ -10,7 +10,7 @@ const cache = {
     users: new Collection(),
 };
 
-const client = new CommandoClient({
+const client = new PugClient({
     owner: ['685361423001452576'], // Your ID here.
     commandPrefix: '!', // The prefix of your bot.
     unknownCommandResponse: false, // Set this to true if you want to send a message when a user uses the prefix not followed by a command
@@ -28,7 +28,7 @@ client.once('ready', () => {
         ])
         .registerDefaultGroups()
         .registerDefaultCommands()
-        .registerCommandsIn(path.join(__dirname, 'commands'));
+        //.registerCommandsIn(path.join(__dirname, 'commands'));
 });
 
 client.on('error', console.error);
