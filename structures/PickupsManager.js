@@ -22,7 +22,7 @@ class PickupsManager {
                 if(typeof channel == "object" && channel.arr){
                     channel = channel.arr;
                     this.count.set(id, channel.count);
-                    channel = channel.map(pickups => new Pickups(pickups));
+                    channel = channel.map(pickups => new Pickups(this.client, pickups));
                     this.cache.set(id, channel);
                 } else channel = undefined;
             }
