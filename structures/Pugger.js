@@ -1,7 +1,7 @@
 const uCache = require('../app').cache.users;
 const db = require('../app').db.users;
 
-class User {
+class Pugger {
 
     constructor(id) {
         this.globalElo = 1400;
@@ -43,4 +43,4 @@ class User {
 
 }
 
-module.exports = User;
+module.exports = Pugger;

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-module.exports = {};
 const DatabaseClient = require('./structures/Database');
+module.exports.DatabaseClient = DatabaseClient;
 module.exports.init = async(client) => {
     const Client = new DatabaseClient();
     const channels = Client.createDatabase(process.env.DB_NAME || 'base', 'channels');
