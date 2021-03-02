@@ -11,7 +11,7 @@ const cache = {
 };
 
 const client = new PugClient({
-    owner: ['685361423001452576'], // Your ID here.
+    owner: ['582054452744421387', '685361423001452576', '518097896365752338', '429493473259814923'], // Your ID here.
     commandPrefix: '!', // The prefix of your bot.
     unknownCommandResponse: false, // Set this to true if you want to send a message when a user uses the prefix not followed by a command
 });
