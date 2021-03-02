@@ -1,7 +1,7 @@
 const states = require('../../structures/Game').states;
 
 const { readyHandler } = require('../../libs/handlers');
-const { updateCache, getPickupChannel } = require('../../libs/utils');
+const { updateCache } = require('../../libs/utils');
 
 const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
@@ -19,7 +19,7 @@ const run = async(message) => {
 
     if (!pickupsNames) return message.reply('No pickups found!');
 
-    const pickupsChannel = await getPickupChannel(message.channel.id);
+    const pickupsChannel = await message.client.pickups.fetchChannel(message.channel.id);
     if (!pickupsChannel) return;
     let joined = new Array();
 

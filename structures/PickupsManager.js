@@ -1,3 +1,4 @@
+/* eslint-disable no-async-promise-executor */
 const { Collection } = require('discord.js');
 const Pickups = require('./Pickups');
 
@@ -31,6 +32,63 @@ class PickupsManager {
             // Resolve with final channel value
             res(channel);
         });
+    }
+
+    async createPickups(options) {
+        const { channel, name } = options;
+        Object.assign(options, { opts: Pickups.defaultOpts });
+        const pickups = new Pickups(this.client, options);
+
+        let pickupsConf = await this.client.db.channels.get(channel);
+        if (!pickupsConf || !pickupsConf.arr) {
+            pickupsConf = {
+                arr: new Array(),
+                count: 1,
+            };
+        }
+        if (pickupsConf.arr.find(x => x.name == name))
+            return 'Pickups with that name already exists!';
+
+        pickupsConf.arr.push(pickups.deserialize());
+        const set = await this.client.db.channels.set(channel, pickupsConf);
+        if (set) {
+            let pickupsChannel = this.cache.get(channel);
+            if (!pickupsChannel) {
+                this.cache.set(channel, {});
+                pickupsChannel = new Array();
+            }
+            pickupsChannel.push(pickups);
+            this.cache.set(channel, pickupsChannel);
+            return true;
+        } else
+            return 'Database failed, contact DEVS!';
+    }
+    /**
+     * @param  {String} name
+     * @param  {String} channel
+     * @returns {String || True } String if operation failed, True if operation succeeded.
+     */
+
+    async removePickups(name, channel) {
+        const pickupsConf = await this.client.db.channels.get(channel);
+        if (!pickupsConf || !pickupsConf.arr)
+            return 'Did not find any pickups in this channel!';
+
+        const pickupsIndex = pickupsConf.arr.findIndex(x => x.name == name);
+        if (pickupsIndex < 0)
+            return 'No Pickups with that name was found!';
+
+        pickupsConf.arr.splice(pickupsIndex, 1);
+        const set = await this.client.db.channels.set(channel, pickupsConf);
+        if (set) {
+            const pickupsChannel = this.cache.get(channel);
+            if (!pickupsChannel) this.cache.set(channel, {});
+            const cacheIndex = pickupsChannel.findIndex(x => x.name == name);
+            if (cacheIndex >= 0)
+                pickupsChannel.splice(cacheIndex, 1);
+            return true;
+        } else
+            return 'Database failed, contact DEVS!';
     }
 
 }

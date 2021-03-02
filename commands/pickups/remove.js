@@ -5,7 +5,6 @@ const { updateCache } = require('../../libs/utils');
 const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
 
-let cache;
 const run = async(message) => {
     let pickupsNames;
     if (message.content.startsWith('-')) {
@@ -17,7 +16,7 @@ const run = async(message) => {
 
     if (!pickupsNames) return message.reply('No pickups found!');
 
-    const pickupsChannel = cache.pickups.get(message.channel.id);
+    const pickupsChannel = await message.client.pickups.fetchChannel(message.channel.id);
     if (!pickupsChannel) return;
     let left = new Array();
     if (pickupsNames instanceof Array) {
@@ -70,7 +69,6 @@ module.exports = class command extends Command {
             description: 'Unqueue from a pickup',
             guildOnly: true,
         });
-        cache = client.cache;
     }
 
     async run(message) {

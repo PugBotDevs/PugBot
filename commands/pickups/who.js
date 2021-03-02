@@ -1,5 +1,4 @@
 const states = require('../../structures/Game').states;
-const Pickups = require('../../structures/Pickups');
 
 const { MessageEmbed } = require('discord.js');
 
@@ -18,18 +17,7 @@ module.exports = class command extends Command {
     }
 
     async run(message) {
-        const cache = this.client.cache;
-        const db = this.client.db.channels;
-        let pickups = cache.pickups.get(message.channel.id);
-        if (!pickups) {
-            pickups = [];
-            const pickupsArr = await db.get(message.channel.id);
-            if (!(pickupsArr || {}).arr) return;
-            pickupsArr.arr.forEach(x => {
-                pickups.push(new Pickups(x));
-            });
-            cache.pickups.set(message.channel.id, pickups);
-        }
+        const pickups = await message.client.pickups.fetchChannel(message.channel.id);
         const embed = new MessageEmbed()
             .setTitle('Currently active pickups')
             .setColor('GREEN');

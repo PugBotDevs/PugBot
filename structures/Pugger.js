@@ -10,6 +10,11 @@ class Pugger {
         this.id = id;
     }
 
+    setDefault(id) {
+        this.elos[id] = 1400;
+        return this;
+    }
+
     deserialize() {
         return {
             globalElo: this.globalElo,

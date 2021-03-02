@@ -14,34 +14,18 @@ module.exports = class command extends Command {
     }
 
     async run(message, args = '') {
-        const cache = this.client.cache;
-        const db = this.client.db.channels;
-
         args = args.split(' ');
         if (!args || args.length != 1)
             return message.reply('I Need one argument (Pickups Name)');
 
         const name = args[0];
-
-        const pickupsConf = await db.get(message.channel.id);
-        if (!pickupsConf || !pickupsConf.arr)
-            return message.reply('Did not find any pickups in this channel!');
-
-        const pickupsIndex = pickupsConf.arr.findIndex(x => x.name == name);
-        if (pickupsIndex < 0)
-            return message.reply('No Pickups with that name was found!');
-
-        pickupsConf.arr.splice(pickupsIndex, 1);
-        const set = await db.set(message.channel.id, pickupsConf);
-        if (set) {
-            const pickupsChannel = cache.pickups.get(message.channel.id);
-            if (!pickupsChannel) cache.pickups.set(message.channel.id, {});
-            const cacheIndex = pickupsChannel.findIndex(x => x.name == name);
-            if (cacheIndex >= 0)
-                pickupsChannel.splice(cacheIndex, 1);
+        const pickups = await message.client.pickups.removePickups(name, message.channel.id);
+        if (pickups === true)
             return message.reply(`Successfully removed pickups: ${name}`);
-        } else
-            return message.reply('Fatal Error! DM Devs!');
+        else if (typeof pickups === 'string')
+            return message.reply(pickups);
+        else
+            return message.reply('ERR: UNKNOWN Command failed!');
     }
 
 };
