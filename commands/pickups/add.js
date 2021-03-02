@@ -1,12 +1,9 @@
 const states = require('../../structures/Game').states;
 
 const { readyHandler } = require('../../libs/handlers');
-const { updateCache } = require('../../libs/utils');
 
 const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
-
-let cache;
 
 const run = async(message) => {
     let pickupsNames;
@@ -29,7 +26,7 @@ const run = async(message) => {
             if (pickups) {
                 let game = Object.values(pickups.games).find(x => x.state == states[0]);
                 if (!game) {
-                    let count = cache.pickupsCount.get(message.channel.id);
+                    let count = message.client.pickups.count.get(message.channel.id);
                     if (!count) {
                         pickupsChannel.forEach(x => {
                             if (x.count > count) count = x.count;
@@ -40,9 +37,8 @@ const run = async(message) => {
                 }
                 const res = game.addMember(message.author.id);
                 if (res)
-                    readyHandler(game, pickups, message.channel);
+                    readyHandler(game, pickups, message.channel, message.client.pickups);
                 joined.push(game);
-                updateCache(game, pickups, message.channel);
             }
         });
     } else { // Join all games which are in queue
@@ -51,8 +47,7 @@ const run = async(message) => {
             if (game) {
                 const res = game.addMember(message.author.id);
                 if (res)
-                    readyHandler(game, pickups, message.channel);
-                updateCache(game, pickups, message.channel);
+                    readyHandler(game, pickups, message.channel, message.client.pickups);
                 return game;
             }
             return void 0;
@@ -84,7 +79,6 @@ module.exports = class command extends Command {
             description: 'Queue to a pickup',
             guildOnly: true,
         });
-        cache = client.cache;
     }
 
     async run(message) {

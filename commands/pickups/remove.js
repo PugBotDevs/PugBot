@@ -1,7 +1,5 @@
 const states = require('../../structures/Game').states;
 
-const { updateCache } = require('../../libs/utils');
-
 const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
 
@@ -27,7 +25,7 @@ const run = async(message) => {
                 if (game) {
                     game.removeMember(message.author.id);
                     left.push(game);
-                    updateCache(game, pickups, message.channel);
+                    message.client.pickups.updateCache(game, pickups, message.channel.id);
                 }
             }
         });
@@ -36,7 +34,7 @@ const run = async(message) => {
             const game = Object.values(pickups.games).find(x => x.state = states[0]);
             if (game) {
                 game.removeMember(message.author.id);
-                updateCache(game, pickups, message.channel);
+                message.client.pickups.updateCache(game, pickups, message.channel.id);
                 return game;
             }
             return void 0;

@@ -1,10 +1,7 @@
 const Game = require('../structures/Game');
 const states = Game.states;
-const { updateCache } = require('./utils');
 // eslint-disable-next-line no-unused-vars
-const { MessageEmbed, TextChannel } = require('discord.js');
-// eslint-disable-next-line no-unused-vars
-const Pickups = require('../structures/Pickups');
+const { MessageEmbed, TextChannel } = require('discord.js'), Pickups = require('../structures/Pickups');
 
 const tick = '✅';
 const no = '⛔';
@@ -15,7 +12,7 @@ const no = '⛔';
  * @param {Pickups} pickups
  * @param {TextChannel} channel
  */
-const readyHandler = async(game, pickups, channel) => {
+const readyHandler = async(game, pickups, channel, manager) => {
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize + 1);
     game.notReadyMembers = Array.from(game.members);
     let string = refreshReadyState(game);
@@ -32,7 +29,7 @@ const readyHandler = async(game, pickups, channel) => {
                     message.edit(string);
                 } else {
                     game.ready();
-                    updateCache(game, pickups, channel);
+                    manager.updateCache(game, pickups, channel);
                     message.delete();
                     matchMaker(game, pickups, channel);
                 }
@@ -42,7 +39,7 @@ const readyHandler = async(game, pickups, channel) => {
                 game.notReadyMembers = [];
                 game.queue();
                 collector.stop('Aborted');
-                updateCache(game, pickups, channel);
+                manager.updateCache(game, pickups, channel);
                 message.edit(string);
                 return false;
             }
@@ -57,7 +54,7 @@ const readyHandler = async(game, pickups, channel) => {
                 game.notReadyMembers.forEach(mem => {
                     game.removeMember(mem);
                 });
-                updateCache(game, pickups, channel);
+                manager.updateCache(game, pickups, channel);
             }
         });
     });

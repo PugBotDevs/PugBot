@@ -1,23 +1,13 @@
 require('dotenv').config();
 
 const PugClient = require('./structures/PugClient');
-const { Collection } = require('discord.js');
 const path = require('path');
-
-const cache = {
-    pickups: new Collection(),
-    pickupsCount: new Collection(),
-    users: new Collection(),
-};
 
 const client = new PugClient({
     owner: ['582054452744421387', '685361423001452576', '518097896365752338', '429493473259814923'], // Your ID here.
     commandPrefix: '!', // The prefix of your bot.
     unknownCommandResponse: false, // Set this to true if you want to send a message when a user uses the prefix not followed by a command
 });
-
-module.exports.cache = cache;
-module.exports.db = {};
 
 client.once('ready', () => {
     console.log('LOGGED IN!');
@@ -44,7 +34,6 @@ const token = (env.toUpperCase() == 'PRODUCTION') ? process.env.TOKEN : process.
 
 (async function main() {
     await require('./db').init(client);
-    client.cache = cache;
     module.exports = client;
 
     client.login(token);

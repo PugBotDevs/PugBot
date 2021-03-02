@@ -63,12 +63,12 @@ class PickupsManager {
         } else
             return 'Database failed, contact DEVS!';
     }
+
     /**
      * @param  {String} name
      * @param  {String} channel
      * @returns {String || True } String if operation failed, True if operation succeeded.
      */
-
     async removePickups(name, channel) {
         const pickupsConf = await this.client.db.channels.get(channel);
         if (!pickupsConf || !pickupsConf.arr)
@@ -89,6 +89,15 @@ class PickupsManager {
             return true;
         } else
             return 'Database failed, contact DEVS!';
+    }
+
+    updateCache(game, pickups, channel) {
+        if (!(pickups instanceof Pickups)) throw new Error('Received deserialized!');
+        pickups.games[game.id] = game;
+        let pickupsChannel = this.cache.get(channel.id);
+        if (!pickupsChannel) pickupsChannel = {};
+        pickupsChannel[pickups.name] = pickups;
+        this.cache.set(channel.id, pickupsChannel);
     }
 
 }
