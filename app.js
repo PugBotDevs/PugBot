@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const PugClient = require("./structures/PugClient");
+const PugClient = require('./structures/PugClient');
 const { Collection } = require('discord.js');
 const path = require('path');
 
@@ -27,8 +27,8 @@ client.once('ready', () => {
             ['pickups', 'All basic commands relating to pickups'],
         ])
         .registerDefaultGroups()
-        .registerDefaultCommands()
-        //.registerCommandsIn(path.join(__dirname, 'commands'));
+        .registerDefaultCommands();
+    // .registerCommandsIn(path.join(__dirname, 'commands'));
 });
 
 client.on('error', console.error);

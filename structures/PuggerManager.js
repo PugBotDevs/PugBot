@@ -1,10 +1,12 @@
-const { Collection } = require("discord.js");
+const { Collection } = require('discord.js');
 
 class PuggerManager {
-    constructor(client){
+
+    constructor(client) {
         this.client = client;
         this.cache = new Collection();
     }
+
 }
 
 module.exports = PuggerManager;
