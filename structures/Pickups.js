@@ -19,7 +19,7 @@ class Pickups {
             if (res && res.count) count = res.count;
         }
         if (!count) count = 1;
-        const game = new Game(this.client, this.name, this.size, this.opts, this.channel, count);
+        const game = new Game(this.client, this, count);
         this.count = count + 1;
         this.updateDBCount(this.count);
         this.games[game.id] = game;
