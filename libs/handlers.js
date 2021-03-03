@@ -12,7 +12,8 @@ const no = '⛔';
  * @param {Pickups} pickups
  * @param {TextChannel} channel
  */
-const readyHandler = async(game, pickups, channel, manager) => {
+const readyHandler = async(game, channel, manager) => {
+    let pickups = (await manager.fetchChannel(channel.id)).find(p => p.name == game.name);
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize + 1);
     game.notReadyMembers = Array.from(game.members);
     let string = refreshReadyState(game);
