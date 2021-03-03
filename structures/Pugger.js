@@ -1,13 +1,13 @@
-const uCache = require('../app').cache.users;
-const db = require('../app').db.users;
-
 class Pugger {
 
-    constructor(id) {
-        this.globalElo = 1400;
+    constructor(client, data) {
+        this.client = client;
+        this.globalElo = data?.globalElo || 1400;
         // Elos mapped by channel id;
-        this.elos = {};
-        this.id = id;
+        this.elos = data?.elos || {};
+        this.id = data?.id;
+        this.queued = [];
+        this.game = null;
     }
 
     setDefault(id) {
@@ -39,11 +39,11 @@ class Pugger {
     }
 
     updateCache() {
-        return uCache.set(this.id, this);
+        return this.client.puggers.cache.set(this.id, this);
     }
 
     async updateDB() {
-        return db.set(this.id, this.deserialize());
+        return this.client.db.users.set(this.id, this.deserialize());
     }
 
 }
