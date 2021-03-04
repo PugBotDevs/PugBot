@@ -1,4 +1,4 @@
-const { states } = require("./Game");
+const { states } = require('./Game');
 
 class Pugger {
 
@@ -42,9 +42,9 @@ class Pugger {
     }
 
     async queue(channelId, pickup) {
-        let channel = await this.client.pickups.fetchChannel(channelId);
+        const channel = await this.client.pickups.fetchChannel(channelId);
         pickup = channel?.find(p => p.name == pickup);
-        if(pickup) { // If pickup is found
+        if (pickup) { // If pickup is found
             let game = Object.values(pickup.games).find(x => x.state == states[0]);
             if (!game) { // If no queueable Game found, make a new Game
                 let count = this.client.pickups.count.get(channelId);
@@ -56,18 +56,18 @@ class Pugger {
                 if (!count) count = 1; // If no count found, set count to 1
                 game = pickup.add(count);
             }
-            let isFull = game.addMember(this.id);
+            const isFull = game.addMember(this.id);
             this.queued.push(game);
             return { game, isFull };
         } else return false;
     }
 
     async unqueue(channelId, pickup) {
-        let gameIndex = this.queued.findIndex(g => g.name == pickup && g.channel == channelId);
-        if(gameIndex != -1) {
-            let game = this.queued[gameIndex];
-            let res = game.removeMember(this.id);
-            if(res){
+        const gameIndex = this.queued.findIndex(g => g.name == pickup && g.channel == channelId);
+        if (gameIndex != -1) {
+            const game = this.queued[gameIndex];
+            const res = game.removeMember(this.id);
+            if (res) {
                 this.queued.splice(gameIndex, 1);
                 return game;
             } else return false;
