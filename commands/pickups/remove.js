@@ -1,6 +1,5 @@
 const states = require('../../structures/Game').states;
 
-const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
 
 const run = async(message) => {
@@ -73,22 +72,8 @@ const run = async(message) => {
         message.reply(embed);
     }
 };
-module.exports = class command extends Command {
-
-    constructor(client) {
-        super(client, {
-            name: 'remove',
-            aliases: ['unqueue'],
-            group: 'pickups',
-            memberName: 'remove',
-            description: 'Unqueue from a pickup',
-            guildOnly: true,
-        });
-    }
-
-    async run(message) {
-        run(message);
-    }
-
+module.exports = {
+    name: 'remove',
+    aliases: ['unqueue'],
+    run,
 };
-module.exports.run = run;
