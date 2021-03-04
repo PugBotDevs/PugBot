@@ -1,5 +1,3 @@
-const states = require('../../structures/Game').states;
-
 const { MessageEmbed } = require('discord.js');
 
 const run = async(message) => {

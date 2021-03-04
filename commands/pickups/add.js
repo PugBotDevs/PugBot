@@ -1,5 +1,3 @@
-const states = require('../../structures/Game').states;
-
 const { readyHandler } = require('../../libs/handlers');
 
 const { MessageEmbed } = require('discord.js');
