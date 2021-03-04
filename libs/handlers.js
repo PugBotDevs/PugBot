@@ -8,7 +8,8 @@ const no = '⛔';
 
 const readyHandler = async(game, channel) => {
     const manager = game.client.pickups;
-    const pickups = (await manager.fetchChannel(channel.id)).find(p => p.name == game.name);
+    const pickups = (await manager.fetchChannel(channel.id));
+
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize + 1);
     game.notReadyMembers = Array.from(game.members);
     let string = refreshReadyState(game);
@@ -26,7 +27,7 @@ const readyHandler = async(game, channel) => {
                 } else {
                     game.ready();
                     message.delete();
-                    matchMaker(game, channel);
+                    matchMaker(game, channel, pickups);
                 }
             } else if (r.emoji.name == no) {
                 string = `Match was aborted by ${u}`;
@@ -69,32 +70,34 @@ const refreshReadyState = (game) => {
  * @param {Pickups} pickups
  * @param {TextChannel} channel
  */
-const matchMaker = (game, channel) => {
-    console.log('making match', game);
+const matchMaker = (game, channel, pickupsChannel) => {
     if (game.members.length == 2) {
         game.teams.alpha.push(game.members[0]);
         game.teams.beta.push(game.members[1]);
     } else {
         switch (game.opts.pick) {
         case 'AUTO': {
-            const unpicked = new Array(game.members);
-            while (unpicked.length > 1) {
-                console.log(unpicked.pop(Math.random() * (unpicked.length - 1)));
-                game.teams.alpha.push(unpicked.pop(Math.random() * (unpicked.length - 1)));
-                game.teams.beta.push(unpicked.pop(Math.random() * (unpicked.length - 1)));
-            }
-            if (unpicked.length)
-                game.teams.alpha.push(unpicked.pop(0));
+            // Make a new array from game.members instead of refering it and then shuffle it
+            const unpicked = shuffle(Array.from(game.members));
+            // Split the shuffled into two arrays and assign to alpha and beta
+            [game.teams.alpha, game.teams.beta ] = new Array(Math.ceil(unpicked.length / 2))
+                .fill()
+                .map(() => unpicked.splice(0, 2));
         }
         }
     }
     if (game.teams.alpha.length && game.teams.beta.length) {
-        channel.send(game.members.map(mem => `<@${mem}>`).join(','));
-        channel.send(new MessageEmbed()
+        const embed = new MessageEmbed()
             .setTitle('TEAMS READY!')
             .setColor('RED')
-            .setDescription(`${game.teams.alpha.map(mem => `<@${mem}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem}>`).join(',')}`),
-        );
+            .setDescription(`${game.teams.alpha.map(mem => `<@${mem}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem}>`).join(',')}`);
+        const maps = pickupsChannel.find(x => x.name == game.name)?.opts?.maps;
+        if (maps) {
+            // Select a psuedorandom map
+            const map = maps[~~(Math.random() * maps.length)];
+            embed.addField('Suggested Map: ', map);
+        }
+        return channel.send(game.members.map(mem => `<@${mem}>`).join(','), { embed }).catch(console.log);
     } else
         channel.send('Failed to matchmake!');
 };
@@ -102,4 +105,14 @@ const matchMaker = (game, channel) => {
 
 module.exports = {
     readyHandler,
+};
+
+const shuffle = (array) => {
+    let temp;
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = ~~(Math.random() * (i + 1));
+        temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
 };

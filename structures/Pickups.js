@@ -60,4 +60,5 @@ module.exports = Pickups;
 module.exports.defaultOpts = {
     pick: 'AUTO',
     readyWait: 120000,
+    maps: [],
 };

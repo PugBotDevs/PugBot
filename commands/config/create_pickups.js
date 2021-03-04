@@ -1,5 +1,4 @@
-const run = async(message, args = '') => {
-    args = args.split(' ');
+const run = async(message, args = []) => {
     if (!args || args.length != 2)
         return message.reply('Need 2 arguments  (Eg: PickupsName MembersNum)');
 

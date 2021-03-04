@@ -17,7 +17,7 @@ const run = async(message) => {
         });
         embed.addField(x.name, field || 'No match in progress');
     });
-    message.embed(embed);
+    message.reply(embed);
 };
 
 
