@@ -1,11 +1,7 @@
 const states = require('../../structures/Game').states;
 
-const { updateCache } = require('../../libs/utils');
-
-const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
 
-let cache;
 const run = async(message) => {
     let pickupsNames;
     if (message.content.startsWith('-')) {
@@ -17,33 +13,50 @@ const run = async(message) => {
 
     if (!pickupsNames) return message.reply('No pickups found!');
 
-    const pickupsChannel = cache.pickups.get(message.channel.id);
-    if (!pickupsChannel) return;
-    let left = new Array();
+    const pugger = await message.client.puggers.fetch(message.author.id);
+    if (!pugger) return message.reply('Couldn\'t resolve user!');
+
+    const left = new Array();
     if (pickupsNames instanceof Array) {
-        pickupsNames.forEach(pickupsName => {
-            const pickups = pickupsChannel.find(x => x.name == pickupsName);
-            if (pickups) {
-                const game = Object.values(pickups.games).find(x => x.state == states[0]);
-                if (game) {
-                    game.removeMember(message.author.id);
-                    left.push(game);
-                    updateCache(game, pickups, message.channel);
-                }
-            }
-        });
-    } else { // Leave all games which are in queue
-        left = pickupsChannel.map(pickups => {
-            const game = Object.values(pickups.games).find(x => x.state = states[0]);
-            if (game) {
-                game.removeMember(message.author.id);
-                updateCache(game, pickups, message.channel);
-                return game;
-            }
-            return void 0;
-        });
-        left = left.filter(x => x);
+        for (const pickupName of pickupsNames) {
+            const res = await pugger.unqueue(message.channel.id, pickupName);
+            if (res) left.push(res);
+        }
+    } else {
+        const channel = await message.client.pickups.fetchChannel(message.channel.id);
+        for (const { name } of channel) {
+            const res = await pugger.unqueue(message.channel.id, name);
+            if (res) left.push(res);
+        }
     }
+
+    // const pickupsChannel = await message.client.pickups.fetchChannel(message.channel.id);
+    // if (!pickupsChannel) return;
+    // let left = new Array();
+    // if (pickupsNames instanceof Array) {
+    //     pickupsNames.forEach(pickupsName => {
+    //         const pickups = pickupsChannel.find(x => x.name == pickupsName);
+    //         if (pickups) {
+    //             const game = Object.values(pickups.games).find(x => x.state == states[0]);
+    //             if (game) {
+    //                 game.removeMember(message.author.id);
+    //                 left.push(game);
+    //                 message.client.pickups.updateCache(game, pickups, message.channel.id);
+    //             }
+    //         }
+    //     });
+    // } else { // Leave all games which are in queue
+    //     left = pickupsChannel.map(pickups => {
+    //         const game = Object.values(pickups.games).find(x => x.state = states[0]);
+    //         if (game) {
+    //             game.removeMember(message.author.id);
+    //             message.client.pickups.updateCache(game, pickups, message.channel.id);
+    //             return game;
+    //         }
+    //         return void 0;
+    //     });
+    //     left = left.filter(x => x);
+    // }
 
     if (left.length > 0) {
         const embed = new MessageEmbed().setColor('ORANGE');
@@ -59,23 +72,8 @@ const run = async(message) => {
         message.reply(embed);
     }
 };
-module.exports = class command extends Command {
-
-    constructor(client) {
-        super(client, {
-            name: 'remove',
-            aliases: ['unqueue'],
-            group: 'pickups',
-            memberName: 'remove',
-            description: 'Unqueue from a pickup',
-            guildOnly: true,
-        });
-        cache = client.cache;
-    }
-
-    async run(message) {
-        run(message);
-    }
-
+module.exports = {
+    name: 'remove',
+    aliases: ['unqueue'],
+    run,
 };
-module.exports.run = run;

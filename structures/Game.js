@@ -1,12 +1,14 @@
 const states = ['QUEUE', 'READY', 'PROGRESS', 'DONE'];
 class Game {
 
-    constructor(name, size, opts, channel, id) {
-        this.name = name;
-        this.maxSize = size;
+    constructor(client, pickups, id) {
+        this.client = client;
+        this.pickups = pickups;
+        this.name = pickups.name;
+        this.maxSize = pickups.size;
         this.size = 0;
-        this.opts = opts;
-        this.channel = channel;
+        this.opts = pickups.opts;
+        this.channel = pickups.channel;
         this.state = states[0];
         this.id = id;
         this.members = [];

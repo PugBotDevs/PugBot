@@ -1,10 +1,8 @@
 const Game = require('./Game');
-// eslint-disable-next-line no-unused-vars
-const db = require('../app').db.channels;
-const cacheCount = require('../app').cache.pickupsCount;
 class Pickups {
 
-    constructor(opts) {
+    constructor(client, opts) {
+        this.client = client;
         this.name = opts.name;
         this.size = opts.size;
         this.opts = opts.opts;
@@ -15,13 +13,13 @@ class Pickups {
     }
 
     add() {
-        let count = cacheCount[this.channel];
+        let count = this.client.pickups.count.get(this.channel);
         if (!count) {
-            const res = db.get(this.channel);
+            const res = this.client.db.channels.get(this.channel);
             if (res && res.count) count = res.count;
         }
         if (!count) count = 1;
-        const game = new Game(this.name, this.size, this.opts, this.channel, count);
+        const game = new Game(this.client, this, count);
         this.count = count + 1;
         this.updateDBCount(this.count);
         this.games[game.id] = game;
@@ -50,10 +48,10 @@ class Pickups {
     }
 
     async updateDBCount(count) {
-        const res = await db.get(this.channel);
+        const res = await this.client.db.channels.get(this.channel);
         res.count = count;
-        cacheCount.set(this.channel, count);
-        await db.set(this.channel, res);
+        this.client.pickups.count.set(this.channel, count);
+        await this.client.db.channels.set(this.channel, res);
     }
 
 }

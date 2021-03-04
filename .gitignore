@@ -117,3 +117,7 @@ dist
 # Mac OSX
 
 *.DS_Store
+
+# Misc
+
+/deprecated

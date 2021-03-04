@@ -1,12 +1,8 @@
 const states = require('../../structures/Game').states;
 
 const { readyHandler } = require('../../libs/handlers');
-const { updateCache, getPickupChannel } = require('../../libs/utils');
 
-const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
-
-let cache;
 
 const run = async(message) => {
     let pickupsNames;
@@ -19,46 +15,31 @@ const run = async(message) => {
 
     if (!pickupsNames) return message.reply('No pickups found!');
 
-    const pickupsChannel = await getPickupChannel(message.channel.id);
-    if (!pickupsChannel) return;
-    let joined = new Array();
+    const pugger = await message.client.puggers.fetch(message.author.id);
+    if (!pugger) return message.reply('Couldn\'t resolve user!');
+
+    const joined = new Array();
 
     if (pickupsNames instanceof Array) {
-        pickupsNames.forEach(pickupsName => {
-            const pickups = pickupsChannel.find(x => x.name == pickupsName);
-            if (pickups) {
-                let game = Object.values(pickups.games).find(x => x.state == states[0]);
-                if (!game) {
-                    let count = cache.pickupsCount.get(message.channel.id);
-                    if (!count) {
-                        pickupsChannel.forEach(x => {
-                            if (x.count > count) count = x.count;
-                        });
-                    }
-                    if (!count) count = 1;
-                    game = pickups.add(count);
-                }
-                const res = game.addMember(message.author.id);
-                if (res)
-                    readyHandler(game, pickups, message.channel);
-                joined.push(game);
-                updateCache(game, pickups, message.channel);
+        for (const pickupName of pickupsNames) {
+            const res = await pugger.queue(message.channel.id, pickupName);
+            if (res) {
+                if (res.isFull) readyHandler(res.game, message.channel);
+                joined.push(res.game);
             }
-        });
-    } else { // Join all games which are in queue
-        joined = pickupsChannel.map(pickups => {
-            const game = Object.values(pickups.games).find(x => x.state = states[0]);
-            if (game) {
-                const res = game.addMember(message.author.id);
-                if (res)
-                    readyHandler(game, pickups, message.channel);
-                updateCache(game, pickups, message.channel);
-                return game;
+        }
+    } else {
+        const channel = await message.client.pickups.fetchChannel(message.channel.id);
+        for (const { name } of channel) {
+            const res = await pugger.queue(message.channel.id, name);
+            if (res) {
+                if (res.isFull) readyHandler(res.game, message.channel);
+                joined.push(res.game);
             }
-            return void 0;
-        });
-        joined = joined.filter(x => x);
+        }
     }
+
+    // Send joined embed
     if (joined.length > 0) {
         const embed = new MessageEmbed().setColor('ORANGE');
         if (joined.length - 1) {
@@ -73,23 +54,8 @@ const run = async(message) => {
         message.reply(embed);
     }
 };
-module.exports = class command extends Command {
-
-    constructor(client) {
-        super(client, {
-            name: 'add',
-            aliases: ['queue'],
-            group: 'pickups',
-            memberName: 'add',
-            description: 'Queue to a pickup',
-            guildOnly: true,
-        });
-        cache = client.cache;
-    }
-
-    async run(message) {
-        run(message);
-    }
-
+module.exports = {
+    name: 'add',
+    aliases: ['queue'],
+    run,
 };
-module.exports.run = run;

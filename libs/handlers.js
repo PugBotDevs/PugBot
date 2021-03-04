@@ -1,21 +1,14 @@
 const Game = require('../structures/Game');
 const states = Game.states;
-const { updateCache } = require('./utils');
 // eslint-disable-next-line no-unused-vars
-const { MessageEmbed, TextChannel } = require('discord.js');
-// eslint-disable-next-line no-unused-vars
-const Pickups = require('../structures/Pickups');
+const { MessageEmbed, TextChannel } = require('discord.js'), Pickups = require('../structures/Pickups');
 
 const tick = '✅';
 const no = '⛔';
 
-/**
- * Initiates READY state for a game
- * @param {Game} game
- * @param {Pickups} pickups
- * @param {TextChannel} channel
- */
-const readyHandler = async(game, pickups, channel) => {
+const readyHandler = async(game, channel) => {
+    const manager = game.client.pickups;
+    const pickups = (await manager.fetchChannel(channel.id)).find(p => p.name == game.name);
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize + 1);
     game.notReadyMembers = Array.from(game.members);
     let string = refreshReadyState(game);
@@ -32,9 +25,8 @@ const readyHandler = async(game, pickups, channel) => {
                     message.edit(string);
                 } else {
                     game.ready();
-                    updateCache(game, pickups, channel);
                     message.delete();
-                    matchMaker(game, pickups, channel);
+                    matchMaker(game, channel);
                 }
             } else if (r.emoji.name == no) {
                 string = `Match was aborted by ${u}`;
@@ -42,7 +34,6 @@ const readyHandler = async(game, pickups, channel) => {
                 game.notReadyMembers = [];
                 game.queue();
                 collector.stop('Aborted');
-                updateCache(game, pickups, channel);
                 message.edit(string);
                 return false;
             }
@@ -57,7 +48,6 @@ const readyHandler = async(game, pickups, channel) => {
                 game.notReadyMembers.forEach(mem => {
                     game.removeMember(mem);
                 });
-                updateCache(game, pickups, channel);
             }
         });
     });
@@ -79,7 +69,7 @@ const refreshReadyState = (game) => {
  * @param {Pickups} pickups
  * @param {TextChannel} channel
  */
-const matchMaker = (game, pickups, channel) => {
+const matchMaker = (game, channel) => {
     console.log('making match', game);
     if (game.members.length == 2) {
         game.teams.alpha.push(game.members[0]);
