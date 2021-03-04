@@ -30,34 +30,6 @@ const run = async(message) => {
         }
     }
 
-    // const pickupsChannel = await message.client.pickups.fetchChannel(message.channel.id);
-    // if (!pickupsChannel) return;
-    // let left = new Array();
-    // if (pickupsNames instanceof Array) {
-    //     pickupsNames.forEach(pickupsName => {
-    //         const pickups = pickupsChannel.find(x => x.name == pickupsName);
-    //         if (pickups) {
-    //             const game = Object.values(pickups.games).find(x => x.state == states[0]);
-    //             if (game) {
-    //                 game.removeMember(message.author.id);
-    //                 left.push(game);
-    //                 message.client.pickups.updateCache(game, pickups, message.channel.id);
-    //             }
-    //         }
-    //     });
-    // } else { // Leave all games which are in queue
-    //     left = pickupsChannel.map(pickups => {
-    //         const game = Object.values(pickups.games).find(x => x.state = states[0]);
-    //         if (game) {
-    //             game.removeMember(message.author.id);
-    //             message.client.pickups.updateCache(game, pickups, message.channel.id);
-    //             return game;
-    //         }
-    //         return void 0;
-    //     });
-    //     left = left.filter(x => x);
-    // }
-
     if (left.length > 0) {
         const embed = new MessageEmbed().setColor('ORANGE');
         if (left.length - 1) {
