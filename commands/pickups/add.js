@@ -25,7 +25,7 @@ const run = async(message) => {
         for(let pickupName of pickupsNames) {
             let res = await pugger.queue(message.channel.id, pickupName);
             if(res){
-                if(res.isFull) readyHandler(res.game, message.channel, message.client.pickups);
+                if(res.isFull) readyHandler(res.game, message.channel);
                 joined.push(res.game);
             }
         }
@@ -34,46 +34,11 @@ const run = async(message) => {
         for(let { name } of channel){
             let res = await pugger.queue(message.channel.id, name);
             if(res){
-                if(res.isFull) readyHandler(res.game, message.channel, message.client.pickups);
+                if(res.isFull) readyHandler(res.game, message.channel);
                 joined.push(res.game);
             }
         };
     }
-
-    // if (pickupsNames instanceof Array) {
-    //     pickupsNames.forEach(pickupsName => {
-    //         const pickups = pickupsChannel.find(x => x.name == pickupsName);
-    //         if (pickups) {
-    //             let game = Object.values(pickups.games).find(x => x.state == states[0]);
-    //             if (!game) {
-    //                 let count = message.client.pickups.count.get(message.channel.id);
-    //                 if (!count) {
-    //                     pickupsChannel.forEach(x => {
-    //                         if (x.count > count) count = x.count;
-    //                     });
-    //                 }
-    //                 if (!count) count = 1;
-    //                 game = pickups.add(count);
-    //             }
-    //             const res = game.addMember(message.author.id);
-    //             if (res)
-    //                 readyHandler(game, pickups, message.channel, message.client.pickups);
-    //             joined.push(game);
-    //         }
-    //     });
-    // } else { // Join all games which are in queue
-    //     joined = pickupsChannel.map(pickups => {
-    //         const game = Object.values(pickups.games).find(x => x.state = states[0]);
-    //         if (game) {
-    //             const res = game.addMember(message.author.id);
-    //             if (res)
-    //                 readyHandler(game, pickups, message.channel, message.client.pickups);
-    //             return game;
-    //         }
-    //         return void 0;
-    //     });
-    //     joined = joined.filter(x => x);
-    // }
 
     // Send joined embed
     if (joined.length > 0) {

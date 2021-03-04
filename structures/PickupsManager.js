@@ -91,15 +91,6 @@ class PickupsManager {
             return 'Database failed, contact DEVS!';
     }
 
-    updateCache(game, pickups, channel) {
-        if (!(pickups instanceof Pickups)) throw new Error('Received deserialized!');
-        pickups.games[game.id] = game;
-        let pickupsChannel = this.cache.get(channel.id);
-        if (!pickupsChannel) pickupsChannel = {};
-        pickupsChannel[pickups.name] = pickups;
-        this.cache.set(channel.id, pickupsChannel);
-    }
-
 }
 
 module.exports = PickupsManager;

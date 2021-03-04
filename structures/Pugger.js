@@ -10,6 +10,7 @@ class Pugger {
         this.id = data?.id;
         this.queued = [];
         this.game = null;
+        this.client.puggers.cache.set(this.id, this);
     }
 
     setDefault(id) {
@@ -47,22 +48,30 @@ class Pugger {
             let game = Object.values(pickup.games).find(x => x.state == states[0]);
             if (!game) { // If no queueable Game found, make a new Game
                 let count = this.client.pickups.count.get(channelId);
-                if (!count) {
+                if (!count) { // Checks for counts of individual Pickups for a channel and takes the highest one
                     channel.forEach(x => {
                         if (x.count > count) count = x.count;
                     });
                 }
-                if (!count) count = 1;
+                if (!count) count = 1; // If no count found, set count to 1
                 game = pickup.add(count);
             }
             let isFull = game.addMember(this.id);
-            this.queued.push(channelId + "_" + game.id);
+            this.queued.push(game);
             return { game, isFull };
         } else return false;
     }
 
-    updateCache() {
-        return this.client.puggers.cache.set(this.id, this);
+    async unqueue(channelId, pickup) {
+        let gameIndex = this.queued.findIndex(g => g.name == pickup && g.channel == channelId);
+        if(gameIndex != -1) {
+            let game = this.queued[gameIndex];
+            let res = game.removeMember(this.id);
+            if(res){
+                this.queued.splice(gameIndex, 1);
+                return game;
+            } else return false;
+        } else return false;
     }
 
     async updateDB() {

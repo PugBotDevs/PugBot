@@ -16,11 +16,11 @@ class PuggerManager {
             pugger = await this.client.db.users.get(id);
             if(pugger)
                 pugger = new Pugger(this.client, pugger);
-            else
+            else {
                 pugger = new Pugger(this.client, { id });
+                await pugger.updateDB();
+            }
             
-            await pugger.updateDB();
-            pugger.updateCache();
             return pugger;
         }
     }

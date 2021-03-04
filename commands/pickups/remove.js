@@ -14,33 +14,50 @@ const run = async(message) => {
 
     if (!pickupsNames) return message.reply('No pickups found!');
 
-    const pickupsChannel = await message.client.pickups.fetchChannel(message.channel.id);
-    if (!pickupsChannel) return;
+    let pugger = await message.client.puggers.fetch(message.author.id);
+    if(!pugger) return message.reply('Couldn\'t resolve user!');
+
     let left = new Array();
-    if (pickupsNames instanceof Array) {
-        pickupsNames.forEach(pickupsName => {
-            const pickups = pickupsChannel.find(x => x.name == pickupsName);
-            if (pickups) {
-                const game = Object.values(pickups.games).find(x => x.state == states[0]);
-                if (game) {
-                    game.removeMember(message.author.id);
-                    left.push(game);
-                    message.client.pickups.updateCache(game, pickups, message.channel.id);
-                }
-            }
-        });
-    } else { // Leave all games which are in queue
-        left = pickupsChannel.map(pickups => {
-            const game = Object.values(pickups.games).find(x => x.state = states[0]);
-            if (game) {
-                game.removeMember(message.author.id);
-                message.client.pickups.updateCache(game, pickups, message.channel.id);
-                return game;
-            }
-            return void 0;
-        });
-        left = left.filter(x => x);
+    if(pickupsNames instanceof Array){
+        for(let pickupName of pickupsNames){
+            let res = await pugger.unqueue(message.channel.id, pickupName);
+            if(res) left.push(res);
+        }
+    } else {
+        let channel = await message.client.pickups.fetchChannel(message.channel.id);
+        for(let { name } of channel){
+            let res = await pugger.unqueue(message.channel.id, name);
+            if(res) left.push(res);
+        };
     }
+
+    // const pickupsChannel = await message.client.pickups.fetchChannel(message.channel.id);
+    // if (!pickupsChannel) return;
+    // let left = new Array();
+    // if (pickupsNames instanceof Array) {
+    //     pickupsNames.forEach(pickupsName => {
+    //         const pickups = pickupsChannel.find(x => x.name == pickupsName);
+    //         if (pickups) {
+    //             const game = Object.values(pickups.games).find(x => x.state == states[0]);
+    //             if (game) {
+    //                 game.removeMember(message.author.id);
+    //                 left.push(game);
+    //                 message.client.pickups.updateCache(game, pickups, message.channel.id);
+    //             }
+    //         }
+    //     });
+    // } else { // Leave all games which are in queue
+    //     left = pickupsChannel.map(pickups => {
+    //         const game = Object.values(pickups.games).find(x => x.state = states[0]);
+    //         if (game) {
+    //             game.removeMember(message.author.id);
+    //             message.client.pickups.updateCache(game, pickups, message.channel.id);
+    //             return game;
+    //         }
+    //         return void 0;
+    //     });
+    //     left = left.filter(x => x);
+    // }
 
     if (left.length > 0) {
         const embed = new MessageEmbed().setColor('ORANGE');
