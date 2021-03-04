@@ -16,28 +16,28 @@ const run = async(message) => {
 
     if (!pickupsNames) return message.reply('No pickups found!');
 
-    let pugger = await message.client.puggers.fetch(message.author.id);
-    if(!pugger) return message.reply('Couldn\'t resolve user!');
+    const pugger = await message.client.puggers.fetch(message.author.id);
+    if (!pugger) return message.reply('Couldn\'t resolve user!');
 
-    let joined = new Array();
-    
+    const joined = new Array();
+
     if (pickupsNames instanceof Array) {
-        for(let pickupName of pickupsNames) {
-            let res = await pugger.queue(message.channel.id, pickupName);
-            if(res){
-                if(res.isFull) readyHandler(res.game, message.channel);
+        for (const pickupName of pickupsNames) {
+            const res = await pugger.queue(message.channel.id, pickupName);
+            if (res) {
+                if (res.isFull) readyHandler(res.game, message.channel);
                 joined.push(res.game);
             }
         }
     } else {
-        let channel = await message.client.pickups.fetchChannel(message.channel.id);
-        for(let { name } of channel){
-            let res = await pugger.queue(message.channel.id, name);
-            if(res){
-                if(res.isFull) readyHandler(res.game, message.channel);
+        const channel = await message.client.pickups.fetchChannel(message.channel.id);
+        for (const { name } of channel) {
+            const res = await pugger.queue(message.channel.id, name);
+            if (res) {
+                if (res.isFull) readyHandler(res.game, message.channel);
                 joined.push(res.game);
             }
-        };
+        }
     }
 
     // Send joined embed

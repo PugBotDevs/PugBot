@@ -7,8 +7,8 @@ const tick = '✅';
 const no = '⛔';
 
 const readyHandler = async(game, channel) => {
-    let manager = game.client.pickups;
-    let pickups = (await manager.fetchChannel(channel.id)).find(p => p.name == game.name);
+    const manager = game.client.pickups;
+    const pickups = (await manager.fetchChannel(channel.id)).find(p => p.name == game.name);
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize + 1);
     game.notReadyMembers = Array.from(game.members);
     let string = refreshReadyState(game);

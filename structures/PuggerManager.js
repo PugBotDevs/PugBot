@@ -10,17 +10,17 @@ class PuggerManager {
 
     async fetch(id) {
         let pugger = this.cache.find(p => p.id == id);
-        if(pugger) {
+        if (pugger)
             return pugger;
-        } else {
+        else {
             pugger = await this.client.db.users.get(id);
-            if(pugger)
+            if (pugger)
                 pugger = new Pugger(this.client, pugger);
             else {
                 pugger = new Pugger(this.client, { id });
                 await pugger.updateDB();
             }
-            
+
             return pugger;
         }
     }
