@@ -2,7 +2,6 @@ const states = require('../../structures/Game').states;
 
 const { readyHandler } = require('../../libs/handlers');
 
-const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
 
 const run = async(message) => {
@@ -55,22 +54,8 @@ const run = async(message) => {
         message.reply(embed);
     }
 };
-module.exports = class command extends Command {
-
-    constructor(client) {
-        super(client, {
-            name: 'add',
-            aliases: ['queue'],
-            group: 'pickups',
-            memberName: 'add',
-            description: 'Queue to a pickup',
-            guildOnly: true,
-        });
-    }
-
-    async run(message) {
-        run(message);
-    }
-
+module.exports = {
+    name: 'add',
+    aliases: ['queue'],
+    run,
 };
-module.exports.run = run;
