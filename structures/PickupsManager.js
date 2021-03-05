@@ -10,7 +10,8 @@ class PickupsManager {
         this.count = new Collection(); // PickupsCount
     }
 
-    fetchChannel(id) {
+    fetchChannel(discordChannel) {
+        const id = discordChannel.id;
         return new Promise(async(res, rej) => {
             // Reject if the parent client does not have a database connected to it
             if (!this.client.db) rej(new Error('Database Not Connected'));
@@ -24,7 +25,10 @@ class PickupsManager {
                 if (typeof channel == 'object' && channel.arr) {
                     this.count.set(id, channel.count);
                     channel = channel.arr;
-                    channel = channel.map(pickups => new Pickups(this.client, pickups));
+                    channel = channel.map(pickups => {
+                        pickups.channel = discordChannel;
+                        return new Pickups(this.client, pickups);
+                    });
                     this.cache.set(id, channel);
                 } else channel = undefined;
             }
@@ -39,7 +43,7 @@ class PickupsManager {
         Object.assign(options, { opts: Pickups.defaultOpts });
         const pickups = new Pickups(this.client, options);
 
-        let pickupsConf = await this.client.db.channels.get(channel);
+        let pickupsConf = await this.client.db.channels.get(channel.id);
         if (!pickupsConf || !pickupsConf.arr) {
             pickupsConf = {
                 arr: new Array(),
@@ -50,15 +54,15 @@ class PickupsManager {
             return 'Pickups with that name already exists!';
 
         pickupsConf.arr.push(pickups.deserialize());
-        const set = await this.client.db.channels.set(channel, pickupsConf);
+        const set = await this.client.db.channels.set(channel.id, pickupsConf);
         if (set) {
-            let pickupsChannel = this.cache.get(channel);
+            let pickupsChannel = this.cache.get(channel.id);
             if (!pickupsChannel) {
-                this.cache.set(channel, {});
+                this.cache.set(channel.id, {});
                 pickupsChannel = new Array();
             }
             pickupsChannel.push(pickups);
-            this.cache.set(channel, pickupsChannel);
+            this.cache.set(channel.id, pickupsChannel);
             return true;
         } else
             return 'Database failed, contact DEVS!';

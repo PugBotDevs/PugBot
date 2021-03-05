@@ -8,16 +8,18 @@ class PuggerManager {
         this.cache = new Collection();
     }
 
-    async fetch(id) {
+    async fetch(user) {
+        const id = user.id;
         let pugger = this.cache.find(p => p.id == id);
         if (pugger)
             return pugger;
         else {
             pugger = await this.client.db.users.get(id);
-            if (pugger)
+            if (pugger) {
+                pugger.user = user;
                 pugger = new Pugger(this.client, pugger);
-            else {
-                pugger = new Pugger(this.client, { id });
+            } else {
+                pugger = new Pugger(this.client, { user });
                 await pugger.updateDB();
             }
 

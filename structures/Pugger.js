@@ -7,7 +7,8 @@ class Pugger {
         this.globalElo = data?.globalElo || 1400;
         // Elos mapped by channel id;
         this.elos = data?.elos || {};
-        this.id = data?.id;
+        this.id = data?.user?.id || data.id;
+        this.user = data?.user;
         this.queued = [];
         this.game = null;
         this.client.puggers.cache.set(this.id, this);
@@ -41,13 +42,13 @@ class Pugger {
         return this;
     }
 
-    async queue(channelId, pickup) {
-        const channel = await this.client.pickups.fetchChannel(channelId);
-        pickup = channel?.find(p => p.name == pickup);
+    async queue(channel, pickup) {
+        const pChannel = await this.client.pickups.fetchChannel(channel);
+        pickup = pChannel?.find(p => p.name == pickup);
         if (pickup) { // If pickup is found
             let game = Object.values(pickup.games).find(x => x.state == states[0]);
             if (!game) { // If no queueable Game found, make a new Game
-                let count = this.client.pickups.count.get(channelId);
+                let count = this.client.pickups.count.get(channel.id);
                 if (!count) { // Checks for counts of individual Pickups for a channel and takes the highest one
                     channel.forEach(x => {
                         if (x.count > count) count = x.count;

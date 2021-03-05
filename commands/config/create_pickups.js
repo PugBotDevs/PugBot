@@ -6,7 +6,7 @@ const run = async(message, args = []) => {
 
     if (isNaN(size)) return message.reply('Second argument needs to be a number!');
 
-    const pickups = await message.client.pickups.createPickups({ name, size: parseInt(size) * 2, channel: message.channel.id });
+    const pickups = await message.client.pickups.createPickups({ name, size: parseInt(size) * 2, channel: message.channel });
 
     if (typeof pickups == 'string')
         return message.reply(pickups);

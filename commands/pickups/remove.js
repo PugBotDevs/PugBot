@@ -11,7 +11,7 @@ const run = async(message) => {
 
     if (!pickupsNames) return message.reply('No pickups found!');
 
-    const pugger = await message.client.puggers.fetch(message.author.id);
+    const pugger = await message.client.puggers.fetch(message.author);
     if (!pugger) return message.reply('Couldn\'t resolve user!');
 
     const left = new Array();

@@ -7,15 +7,17 @@ class Pickups {
         this.size = opts.size;
         this.opts = opts.opts;
         this.channel = opts.channel;
+        this.id = opts.channel.id;
         this.count = 0;
         this.games = {};
         this.gameIDs = [];
+        return this;
     }
 
     add() {
-        let count = this.client.pickups.count.get(this.channel);
+        let count = this.client.pickups.count.get(this.channel.id);
         if (!count) {
-            const res = this.client.db.channels.get(this.channel);
+            const res = this.client.db.channels.get(this.channel.id);
             if (res && res.count) count = res.count;
         }
         if (!count) count = 1;
@@ -42,16 +44,16 @@ class Pickups {
             name: this.name,
             size: this.size,
             opts: this.opts,
-            channel: this.channel,
+            channel: this.channel.id,
             id: this.id,
         };
     }
 
     async updateDBCount(count) {
-        const res = await this.client.db.channels.get(this.channel);
+        const res = await this.client.db.channels.get(this.channel.id);
         res.count = count;
-        this.client.pickups.count.set(this.channel, count);
-        await this.client.db.channels.set(this.channel, res);
+        this.client.pickups.count.set(this.channel.id, count);
+        await this.client.db.channels.set(this.channel.id, res);
     }
 
 }
