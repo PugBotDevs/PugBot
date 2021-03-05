@@ -61,4 +61,6 @@ module.exports.defaultOpts = {
     pick: 'AUTO',
     readyWait: 120000,
     maps: [],
+    ranked: false,
+    teams: true,
 };

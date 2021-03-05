@@ -19,7 +19,14 @@ const sendEmbed = (title, description, color) => {
     return embed;
 };
 
+const parseToBoolean = (x) => {
+    x = x.toLowerCase();
+    const truth = ['yes', 'true', '1', 'y'];
+    return truth.includes(x);
+};
+
 module.exports = {
     errorEmbed,
     embed: sendEmbed,
+    parseToBoolean,
 };

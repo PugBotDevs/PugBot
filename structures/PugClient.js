@@ -29,7 +29,7 @@ class PugClient extends Client {
         const folders = fs.readdirSync(path);
         folders.forEach((dir) => {
             if (fs.lstatSync(require('path').join(path, dir)).isDirectory()) {
-                this.modules.push(path);
+                this.modules.push(dir);
                 const commands = fs.readdirSync(require('path').join(path, dir));
                 commands.forEach(commandPath => {
                     try {

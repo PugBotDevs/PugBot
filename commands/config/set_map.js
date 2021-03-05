@@ -25,6 +25,6 @@ const run = async(message, args = []) => {
 
 module.exports = {
     name: 'set_map',
-    aliases: ['remp'],
+    aliases: ['set_maps'],
     run,
 };

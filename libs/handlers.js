@@ -10,6 +10,7 @@ const readyHandler = async(game, channel) => {
     const manager = game.client.pickups;
     const pickups = (await manager.fetchChannel(channel.id));
 
+    game.start();
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize + 1);
     game.notReadyMembers = Array.from(game.members);
     let string = refreshReadyState(game);
@@ -45,7 +46,7 @@ const readyHandler = async(game, channel) => {
             if (game.state == states[1]) {
                 string = `${game.notReadyMembers.map(mem => `<@${mem}>`).join(',')} was(were) not ready in time`;
                 message.edit(string);
-                game.state = states[0];
+                game.queue();
                 game.notReadyMembers.forEach(mem => {
                     game.removeMember(mem);
                 });
@@ -71,37 +72,46 @@ const refreshReadyState = (game) => {
  * @param {TextChannel} channel
  */
 const matchMaker = (game, channel, pickupsChannel) => {
-    if (game.members.length == 2) {
-        game.teams.alpha.push(game.members[0]);
-        game.teams.beta.push(game.members[1]);
+    const pickup = pickupsChannel.find(x => x.name == game.name);
+    if (pickup.opts.team) {
+        if (game.members.length == 2) {
+            game.teams.alpha.push(game.members[0]);
+            game.teams.beta.push(game.members[1]);
+        } else {
+            switch (game.opts.pick) {
+            case 'AUTO': {
+                // Make a new array from game.members instead of refering it and then shuffle it
+                const unpicked = shuffle(Array.from(game.members));
+                // Split the shuffled into two arrays and assign to alpha and beta
+                [game.teams.alpha, game.teams.beta ] = new Array(Math.ceil(unpicked.length / 2))
+                    .fill()
+                    .map(() => unpicked.splice(0, 2));
+            }
+            }
+        }
+        if (game.teams.alpha.length && game.teams.beta.length) {
+            const embed = new MessageEmbed()
+                .setTitle('${game.name} has started\nTEAMS READY!')
+                .setColor('GOLD')
+                .setDescription(`Players: \n${game.teams.alpha.map(mem => `<@${mem}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem}>`).join(',')}`);
+            addMap(embed, pickup);
+            channel.send(game.members.map(mem => `<@${mem}>`).join(','), { embed }).catch(console.log);
+        } else
+            return channel.send('Failed to matchmake!');
     } else {
-        switch (game.opts.pick) {
-        case 'AUTO': {
-            // Make a new array from game.members instead of refering it and then shuffle it
-            const unpicked = shuffle(Array.from(game.members));
-            // Split the shuffled into two arrays and assign to alpha and beta
-            [game.teams.alpha, game.teams.beta ] = new Array(Math.ceil(unpicked.length / 2))
-                .fill()
-                .map(() => unpicked.splice(0, 2));
-        }
-        }
-    }
-    if (game.teams.alpha.length && game.teams.beta.length) {
         const embed = new MessageEmbed()
-            .setTitle('TEAMS READY!')
-            .setColor('RED')
-            .setDescription(`${game.teams.alpha.map(mem => `<@${mem}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem}>`).join(',')}`);
-        const maps = pickupsChannel.find(x => x.name == game.name)?.opts?.maps;
-        if (maps) {
-            // Select a psuedorandom map
-            const map = maps[~~(Math.random() * maps.length)];
-            embed.addField('Suggested Map: ', map);
-        }
-        return channel.send(game.members.map(mem => `<@${mem}>`).join(','), { embed }).catch(console.log);
-    } else
-        channel.send('Failed to matchmake!');
+            .setTitle(`${game.name} has started`)
+            .setColor('GOLD')
+            .setDescription(`Players: \n${game.members.map(mem => `<@${mem}>`).join(', ')}`);
+        addMap(embed, pickup);
+        channel.send(game.members.map(mem => `<@${mem}>`).join(','), { embed });
+    }
+    if (pickup.opts.ranked) waitReport(game);
+    else game.done();
 };
-
+const waitReport = async(game) => {
+    game.ready();
+};
 
 module.exports = {
     readyHandler,
@@ -115,4 +125,14 @@ const shuffle = (array) => {
         array[i] = array[j];
         array[j] = temp;
     }
+};
+
+const addMap = (embed, pickup) => {
+    const maps = pickup.opts.maps;
+    if ((maps || []).length) {
+        // Select a psuedorandom map
+        const map = maps[~~(Math.random() * maps.length)];
+        embed.addField('Suggested Map: ', map);
+    }
+    return embed;
 };
