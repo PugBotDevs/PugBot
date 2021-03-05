@@ -22,8 +22,8 @@ class PickupsManager {
             if (!channel) {
                 channel = await this.client.db.channels.get(id);
                 if (typeof channel == 'object' && channel.arr) {
-                    channel = channel.arr;
                     this.count.set(id, channel.count);
+                    channel = channel.arr;
                     channel = channel.map(pickups => new Pickups(this.client, pickups));
                     this.cache.set(id, channel);
                 } else channel = undefined;
