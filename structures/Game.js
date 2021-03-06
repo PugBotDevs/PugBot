@@ -40,7 +40,7 @@ class Game {
      * @returns {Boolean} True if member is found
      */
     removeMember(member) {
-        const index = this.members.indexOf(member);
+        const index = this.members.map(x => x.id).indexOf(member);
         if (index >= 0) {
             this.members.splice(index, 1);
             this.size -= 1;
@@ -100,11 +100,11 @@ const readyHandler = async(game) => {
 
     game.setReadyWait();
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize + 1);
-    game.notReadyMembers = Array.from(game.members);
+    game.notReadyMembers = Array.from(game.members.map(x => x.id));
     let string = refreshReadyState(game);
     game.channel.send(string).then(message => {
         message.react(tick).then(() => message.react(no));
-        const filter = (reaction, user) => [tick, no].includes(reaction.emoji.name) && game.members.includes(user.id);
+        const filter = (reaction, user) => [tick, no].includes(reaction.emoji.name) && game.members.map(x => x.id).includes(user.id);
         const collector = message.createReactionCollector(filter, { time: game.opts.readyWait || 120000 });
         collector.on('collect', (r, u) => {
             if (r.emoji.name == tick) {
@@ -163,13 +163,13 @@ const matchMaker = (game, pickupsChannel) => {
     const pickup = pickupsChannel.find(x => x.name == game.name);
     if (pickup.opts.team) {
         if (game.members.length == 2) {
-            game.teams.alpha.push(game.members[0]);
-            game.teams.beta.push(game.members[1]);
+            game.teams.alpha.push(game.members[0].id);
+            game.teams.beta.push(game.members[1].id);
         } else {
             switch (game.opts.pick) {
             case 'AUTO': {
                 // Make a new array from game.members instead of refering it and then shuffle it
-                const unpicked = shuffle(Array.from(game.members));
+                const unpicked = shuffle(Array.from(game.members.map(x => x.id)));
                 // Split the shuffled into two arrays and assign to alpha and beta
                 [game.teams.alpha, game.teams.beta ] = new Array(Math.ceil(unpicked.length / 2))
                     .fill()
@@ -183,16 +183,16 @@ const matchMaker = (game, pickupsChannel) => {
                 .setColor('GOLD')
                 .setDescription(`Players: \n${game.teams.alpha.map(mem => `<@${mem}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem}>`).join(',')}`);
             addMap(embed, pickup);
-            game.channel.send(game.members.map(mem => `<@${mem}>`).join(','), { embed }).catch(console.log);
+            game.channel.send(game.members.map(mem => `<@${mem.id}>`).join(','), { embed }).catch(console.log);
         } else
             return game.channel.send('Failed to matchmake!');
     } else {
         const embed = new MessageEmbed()
             .setTitle(`${game.name} has started`)
             .setColor('GOLD')
-            .setDescription(`Players: \n${game.members.map(mem => `<@${mem}>`).join(', ')}`);
+            .setDescription(`Players: \n${game.members.map(mem => `<@${mem.id}>`).join(', ')}`);
         addMap(embed, pickup);
-        game.channel.send(game.members.map(mem => `<@${mem}>`).join(','), { embed });
+        game.channel.send(game.members.map(mem => `<@${mem.id}>`).join(','), { embed });
     }
     if (pickup.opts.ranked) waitReport(game);
     else game.setDone();

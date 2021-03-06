@@ -57,7 +57,7 @@ class Pugger {
                 if (!count) count = 1; // If no count found, set count to 1
                 game = pickup.add(count);
             }
-            const isFull = game.addMember(this.id);
+            const isFull = game.addMember(this);
             this.queued.push(game);
             return { game, isFull };
         } else return false;
