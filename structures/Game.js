@@ -1,3 +1,4 @@
+const matchMakers = require('../libs/matchmakers');
 const states = ['QUEUE', 'READY', 'PROGRESS', 'DONE'];
 class Game {
 
@@ -91,7 +92,6 @@ module.exports.states = states;
 
 // eslint-disable-next-line no-unused-vars
 const { MessageEmbed, TextChannel } = require('discord.js'), Pickups = require('../structures/Pickups');
-
 const tick = '✅';
 const no = '⛔';
 
@@ -160,8 +160,9 @@ const refreshReadyState = (game) => {
  * @param {Pickups} pickups
  * @param {TextChannel} channel
  */
-const matchMaker = (game, pickupsChannel) => {
-    const pickup = pickupsChannel.find(x => x.name == game.name);
+const matchMaker = async(game) => {
+    const pickup = game.pickups;
+    console.log(pickup.opts);
     if (pickup.opts.team) {
         if (game.members.length == 2) {
             game.teams.alpha.push(game.members[0].id);
@@ -169,12 +170,11 @@ const matchMaker = (game, pickupsChannel) => {
         } else {
             switch (game.opts.pick) {
             case 'AUTO': {
-                // Make a new array from game.members instead of refering it and then shuffle it
-                const unpicked = shuffle(Array.from(game.members.map(x => x.id)));
-                // Split the shuffled into two arrays and assign to alpha and beta
-                [game.teams.alpha, game.teams.beta ] = new Array(Math.ceil(unpicked.length / 2))
-                    .fill()
-                    .map(() => unpicked.splice(0, 2));
+                await matchMakers.auto(game);
+                break;
+            }
+            default: {
+                await matchMakers.auto(game);
             }
             }
         }
@@ -200,16 +200,6 @@ const matchMaker = (game, pickupsChannel) => {
 };
 const waitReport = async(game) => {
     game.setOngoing();
-};
-
-const shuffle = (array) => {
-    let temp;
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = ~~(Math.random() * (i + 1));
-        temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
 };
 
 const addMap = (embed, game) => {

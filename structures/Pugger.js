@@ -14,8 +14,11 @@ class Pugger {
         this.client.puggers.cache.set(this.id, this);
     }
 
-    setDefault(id) {
-        this.elos[id] = 1400;
+    setDefault(id, defaults = { rank: 1400, sigma: 25 }) {
+        this.elos[id] = {
+            rank: defaults.rank,
+            sigma: defaults.sigma,
+        };
         return this;
     }
 
@@ -28,13 +31,19 @@ class Pugger {
     }
 
     elo(id) {
-        if (id)
-            return this.elos[id];
-        else return this.globalElo;
+        if (id) {
+            const elo = this.elos[id];
+            if (!elo) this.setDefault(id).elo(id);
+            return elo;
+        } else return this.globalElo;
     }
 
+    /**
+     * @param  {Object} value, { rank: Int, sigma: Int}
+     * @param  {String} id
+     */
     eloUpdate(value, id) {
-        if (typeof value == 'undefined') throw 'Elo can\'t be undefined';
+        if (typeof value !== 'object') throw 'Elo can only be an object of {rank: Int, sigma: Int}';
         if (id)
             this.elos[id] = value;
         else
