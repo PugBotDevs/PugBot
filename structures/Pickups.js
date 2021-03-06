@@ -8,8 +8,8 @@ class Pickups {
 
         // Inherit channel opts
         this.realOpts = opts.opts;
-        this.opts = channelOpts;
-        Object.assign(this.opts, this.realOpts);
+        this.opts = {};
+        Object.assign(this.opts, channelOpts, this.realOpts);
 
         this.channel = opts.channel;
         this.id = opts.channel.id;
@@ -67,7 +67,6 @@ module.exports = Pickups;
 module.exports.defaultOpts = {
     pick: 'AUTO',
     readyWait: 120000,
-    maps: [],
     ranked: false,
     teams: true,
 };

@@ -47,6 +47,7 @@ class PickupsManager {
             pickupsConf = {
                 arr: new Array(),
                 count: 1,
+                opts: {},
             };
         }
         if (pickupsConf.arr.find(x => x.name == name))

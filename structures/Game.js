@@ -179,7 +179,7 @@ const matchMaker = (game, pickupsChannel) => {
         }
         if (game.teams.alpha.length && game.teams.beta.length) {
             const embed = new MessageEmbed()
-                .setTitle('${game.name} has started\nTEAMS READY!')
+                .setTitle(`${game.name} has started\nTEAMS READY!`)
                 .setColor('GOLD')
                 .setDescription(`Players: \n${game.teams.alpha.map(mem => `<@${mem}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem}>`).join(',')}`);
             addMap(embed, pickup);
