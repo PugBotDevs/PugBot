@@ -17,6 +17,7 @@ class Game {
             alpha: [],
             beta: [],
         };
+        this.map = this.opts.maps?.[~~(Math.random() * this.opts.maps.length)];
         return this;
     }
 
@@ -191,7 +192,7 @@ const matchMaker = (game, pickupsChannel) => {
             .setTitle(`${game.name} has started`)
             .setColor('GOLD')
             .setDescription(`Players: \n${game.members.map(mem => `<@${mem.id}>`).join(', ')}`);
-        addMap(embed, pickup);
+        addMap(embed, game);
         game.channel.send(game.members.map(mem => `<@${mem.id}>`).join(','), { embed });
     }
     if (pickup.opts.ranked) waitReport(game);
@@ -211,12 +212,8 @@ const shuffle = (array) => {
     }
 };
 
-const addMap = (embed, pickup) => {
-    const maps = pickup.opts.maps;
-    if ((maps || []).length) {
-        // Select a psuedorandom map
-        const map = maps[~~(Math.random() * maps.length)];
-        embed.addField('Suggested Map: ', map);
-    }
+const addMap = (embed, game) => {
+    if (game.map)
+        embed.addField('Suggested Map: ', game.map);
     return embed;
 };
