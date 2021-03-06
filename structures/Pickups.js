@@ -1,21 +1,28 @@
 const Game = require('./Game');
 class Pickups {
 
-    constructor(client, opts) {
+    constructor(client, opts, channelOpts = {}) {
         this.client = client;
         this.name = opts.name;
         this.size = opts.size;
-        this.opts = opts.opts;
+
+        // Inherit channel opts
+        this.realOpts = opts.opts;
+        this.opts = {};
+        Object.assign(this.opts, channelOpts, this.realOpts);
+
         this.channel = opts.channel;
+        this.id = opts.channel.id;
         this.count = 0;
         this.games = {};
         this.gameIDs = [];
+        return this;
     }
 
     add() {
-        let count = this.client.pickups.count.get(this.channel);
+        let count = this.client.pickups.count.get(this.channel.id);
         if (!count) {
-            const res = this.client.db.channels.get(this.channel);
+            const res = this.client.db.channels.get(this.channel.id);
             if (res && res.count) count = res.count;
         }
         if (!count) count = 1;
@@ -41,17 +48,17 @@ class Pickups {
         return {
             name: this.name,
             size: this.size,
-            opts: this.opts,
-            channel: this.channel,
+            opts: this.realOpts,
+            channel: this.channel.id,
             id: this.id,
         };
     }
 
     async updateDBCount(count) {
-        const res = await this.client.db.channels.get(this.channel);
+        const res = await this.client.db.channels.get(this.channel.id);
         res.count = count;
-        this.client.pickups.count.set(this.channel, count);
-        await this.client.db.channels.set(this.channel, res);
+        this.client.pickups.count.set(this.channel.id, count);
+        await this.client.db.channels.set(this.channel.id, res);
     }
 
 }
@@ -60,7 +67,6 @@ module.exports = Pickups;
 module.exports.defaultOpts = {
     pick: 'AUTO',
     readyWait: 120000,
-    maps: [],
     ranked: false,
     teams: true,
 };

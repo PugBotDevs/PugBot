@@ -2,7 +2,7 @@ const states = require('../../structures/Game').states;
 
 const { MessageEmbed } = require('discord.js');
 const run = async(message) => {
-    const pickups = await message.client.pickups.fetchChannel(message.channel.id);
+    const pickups = await message.client.pickups.fetchChannel(message.channel);
     const embed = new MessageEmbed()
         .setTitle('Currently active pickups')
         .setColor('GREEN');
