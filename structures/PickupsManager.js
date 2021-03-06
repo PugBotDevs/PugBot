@@ -23,11 +23,12 @@ class PickupsManager {
             if (!channel) {
                 channel = await this.client.db.channels.get(id);
                 if (typeof channel == 'object' && channel.arr) {
+                    const opts = channel.opts;
                     this.count.set(id, channel.count);
                     channel = channel.arr;
                     channel = channel.map(pickups => {
                         pickups.channel = discordChannel;
-                        return new Pickups(this.client, pickups);
+                        return new Pickups(this.client, pickups, opts);
                     });
                     this.cache.set(id, channel);
                 } else channel = undefined;
@@ -40,8 +41,6 @@ class PickupsManager {
 
     async createPickups(options) {
         const { channel, name } = options;
-        Object.assign(options, { opts: Pickups.defaultOpts });
-        const pickups = new Pickups(this.client, options);
 
         let pickupsConf = await this.client.db.channels.get(channel.id);
         if (!pickupsConf || !pickupsConf.arr) {
@@ -52,6 +51,9 @@ class PickupsManager {
         }
         if (pickupsConf.arr.find(x => x.name == name))
             return 'Pickups with that name already exists!';
+
+        Object.assign(options, { opts: Pickups.defaultOpts });
+        const pickups = new Pickups(this.client, options, pickupsConf.opts);
 
         pickupsConf.arr.push(pickups.deserialize());
         const set = await this.client.db.channels.set(channel.id, pickupsConf);

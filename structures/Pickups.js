@@ -1,11 +1,16 @@
 const Game = require('./Game');
 class Pickups {
 
-    constructor(client, opts) {
+    constructor(client, opts, channelOpts = {}) {
         this.client = client;
         this.name = opts.name;
         this.size = opts.size;
-        this.opts = opts.opts;
+
+        // Inherit channel opts
+        this.realOpts = opts.opts;
+        this.opts = channelOpts;
+        Object.assign(this.opts, this.realOpts);
+
         this.channel = opts.channel;
         this.id = opts.channel.id;
         this.count = 0;
@@ -43,7 +48,7 @@ class Pickups {
         return {
             name: this.name,
             size: this.size,
-            opts: this.opts,
+            opts: this.realOpts,
             channel: this.channel.id,
             id: this.id,
         };
