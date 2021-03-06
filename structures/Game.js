@@ -1,3 +1,4 @@
+const ts = require('ts-trueskill');
 const matchMakers = require('../libs/matchmakers');
 const states = ['QUEUE', 'READY', 'PROGRESS', 'DONE'];
 class Game {
@@ -18,6 +19,7 @@ class Game {
             alpha: [],
             beta: [],
         };
+        this.captains = [];
         this.map = this.opts.maps?.[~~(Math.random() * this.opts.maps.length)];
         return this;
     }
@@ -83,6 +85,96 @@ class Game {
 
     get states() {
         return states;
+    }
+
+    async report(scores) {
+        // Implementation from https://gitlab.com/eternalFPS/PUBobot-discord/-/blob/9b848a8fe3df2c4d815458c2f9a0145048090c97/modules/stats3.py
+        // naming scheme is g prefix for 'global elo' used for matchmaking
+        const ratings = {
+            alpha: this.teams.alpha.map(x => new ts.Rating(x.elo(this.channel.id).rank, x.elo(this.channel.id).sigma)),
+            beta: this.teams.beta.map(x => new ts.Rating(x.elo(this.channel.id).rank, x.elo(this.channel.id).sigma)),
+            g: {
+                alpha: this.teams.alpha.map(x => new ts.Rating(x.elo().rank, x.elo().sigma)),
+                beta: this.teams.alpha.map(x => new ts.Rating(x.elo().rank, x.elo().sigma)),
+            },
+            new: {
+                g: {},
+            },
+        };
+
+        // For incorrectly predicted games
+        const gWinProb = [0, 0], winProb = [0, 0];
+        gWinProb[0] = ts.gWinProbability(ratings.alpha, ratings.beta);
+        gWinProb[1] = ts.gWinProbability(ratings.beta, ratings.alpha);
+        winProb[0] = ts.gWinProbability(ratings.g.alpha, ratings.g.beta);
+        winProb[1] = ts.gWinProbability(ratings.g.beta, ratings.g.alpha);
+
+        // Normal use case
+        [ratings.new.alpha, ratings.new.beta] = ts.rate([ratings.alpha, ratings.beta], scores);
+        [ratings.new.g.alpha, ratings.g.alpha ] = ts.rate([ratings.globalAlpha, ratings.globalBeta], scores);
+        const Promises = [];
+        this.ratingChange = [];
+        this.members.forEach(player => {
+            const teams = ['alpha', 'beta'];
+            let teamNum;
+            if (this.teams.alpha.includes(player)) teamNum = 0;
+            else teamNum = 1;
+            const team = teams[teamNum];
+            const
+                Ratings = ratings[team].find(x => x.id == player.id),
+                GRatings = ratings.g[team].find(x => x.id == player.id),
+                newRatings = ratings.new[team].find(x => x.id == player.id),
+                newGRatings = ratings.new.g[team].find(x => x.id == player.id),
+                gRankNew = newRatings.mu,
+                rankNew = newGRatings.mu,
+                is_winner = 1 - scores[teamNum],
+                gRankDiff = gRankNew - Ratings.mu,
+                rankDiff = rankNew - GRatings.mu;
+            let
+                gSigNew = newRatings.sigma,
+                gSigDiff = gSigNew - Ratings.sigma,
+                sigNew = newGRatings.sigma,
+                sigDiff = sigNew - GRatings.sigma;
+            // Adjusting Sigma Values
+            if ((is_winner == 1 && gWinProb[teamNum] < gWinProb[1 - teamNum]) || (is_winner == 0 && gWinProb[teamNum] > gWinProb[1 - teamNum])) {
+                gSigNew = gSigNew - (2 - gWinProb[teamNum]) * gSigDiff;
+                gSigDiff = gSigNew - Ratings.sigma;
+            }
+            if ((is_winner == 1 && winProb[teamNum] < winProb[1 - teamNum]) || (is_winner == 0 && winProb[teamNum] > winProb[1 - teamNum])) {
+                sigNew = sigNew - (2 - winProb[teamNum]) * sigDiff;
+                sigDiff = sigNew - GRatings.sigma;
+            }
+
+            player.updateElo({
+                rank: gRankNew,
+                sigma: gSigNew,
+            }, this.channel.id);
+
+            player.updateElo({
+                rank: rankNew,
+                sigma: sigNew,
+            });
+
+            Promises.push(player.updateDB);
+            this.ratingChange.push({
+                local: gRankDiff,
+                global: rankDiff,
+            });
+        });
+        // Execute all pugger updates asynchronously, reduces time to taken to update ridiculously
+        await Promise.all(Promises);
+        return this;
+    }
+
+    tryReportLoss(pugger) {
+        const index = this.captains.indexOf(pugger);
+        if (index == 0) {
+            // Alpha has reported loss
+            return this.report([1, 0]);
+        } else if (index == 1) {
+            // Beta has reported loss
+            return this.report([0, 1]);
+        } else return 'Only captains can report loss';
     }
 
 }
@@ -179,6 +271,11 @@ const matchMaker = async(game) => {
             }
         }
         if (game.teams.alpha.length && game.teams.beta.length) {
+            game.teams.alpha.sort((a, b) => a.globalElo - b.globalElo);
+            game.teams.beta.sort((a, b) => a.globalElo - b.globalElo);
+
+            // Pick captains with highest elo ranking.
+            game.captains = [game.teams.alpha[0], game.teams.beta[0]];
             const embed = new MessageEmbed()
                 .setTitle(`${game.name} has started\nTEAMS READY!`)
                 .setColor('GOLD')

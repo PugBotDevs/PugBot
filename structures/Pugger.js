@@ -4,7 +4,10 @@ class Pugger {
 
     constructor(client, data) {
         this.client = client;
-        this.globalElo = data?.globalElo || 1400;
+        this.elo = {
+            rank: data?.elo || 1400,
+            signum: 25,
+        };
         // Elos mapped by channel id;
         this.elos = data?.elos || {};
         this.id = data?.user?.id || data.id;
@@ -24,7 +27,7 @@ class Pugger {
 
     deserialize() {
         return {
-            globalElo: this.globalElo,
+            elo: this.elo,
             elos: this.elos,
             id: this.id,
         };
@@ -35,7 +38,7 @@ class Pugger {
             const elo = this.elos[id];
             if (!elo) this.setDefault(id).elo(id);
             return elo;
-        } else return this.globalElo;
+        } else return this.elo;
     }
 
     /**
@@ -47,7 +50,7 @@ class Pugger {
         if (id)
             this.elos[id] = value;
         else
-            this.globalElo = value;
+            this.elo = value;
         return this;
     }
 
