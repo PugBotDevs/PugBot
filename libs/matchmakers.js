@@ -5,7 +5,7 @@ const auto = async(game) => {
         let bestQuality = 0;
         // trueskill!
         // Add indexed ids
-        game.members.map((x,i) => {
+        game.members.map((x, i) => {
             x.index_id = `${i}_${x.id}`;
             return x;
         });
