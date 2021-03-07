@@ -4,8 +4,15 @@ const auto = async(game) => {
     if (game.opts.ranked) {
         let bestQuality = 0;
         // trueskill!
-        for (const t1 of combinations(game.members, Math.ceil(game.members.length / 2))) {
-            const t2 = game.members.filter(x => !t1.includes(x));
+        // Add indexed ids
+        game.members.map((x,i) => {
+            x.index_id = `${i}_${x.id}`;
+            return x;
+        });
+        for (let t1 of combinations(game.members, Math.ceil(game.members.map(x => x.index_id).length / 2))) {
+            let t2 = game.members.map(x => x.index_id).filter(x => !t1.includes(x));
+            t1 = t1.map(x => game.members.find(y => y.index_id == x));
+            t2 = t2.map(x => game.members.find(y => y.index_id == x));
             const rate = x => new ts.Rating(x.elo.rank, x.elo.signum);
             const t1ratings = t1.map(rate), t2ratings = t2.map(rate);
             console.log(t1ratings);
