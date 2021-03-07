@@ -1,5 +1,9 @@
 const ts = require('ts-trueskill');
 const matchMakers = require('../libs/matchmakers');
+
+// eslint-disable-next-line no-unused-vars
+const { MessageEmbed, TextChannel } = require('discord.js'), Pickups = require('../structures/Pickups');
+
 const states = ['QUEUE', 'READY', 'PROGRESS', 'DONE'];
 class Game {
 
@@ -21,6 +25,7 @@ class Game {
         };
         this.captains = [];
         this.map = this.opts.maps?.[~~(Math.random() * this.opts.maps.length)];
+        this.winner = -1;
         return this;
     }
 
@@ -84,6 +89,20 @@ class Game {
      */
     setDone() {
         this.state = states[3];
+        if (this.opts.ranked) {
+            const embed = new MessageEmbed({ title: `Match ${this.name}(${this.id}) has ended`, color: 'GREEN' });
+            if (this.winner == 1 || this.winner == 0) embed.setDescription(`Match has been won by ${['alpha', 'beta'][this.winner]} team`); // Change Alpha-Beta to configured teamname;
+            else if (this.winner == 2) embed.setDescription('Ended in a draw');
+            if (this.winner == -1) embed.setDescription('Match was cancelled').setColor('RED');
+            if (this.ratingChange.length == this.members.length) {
+                this.members.forEach((member, i) => {
+                    const rank = member.getElo(this.channel.id).rank?.toFixed(3);
+                    const gRank = member.getElo().rank?.toFixed(3);
+                    embed.addField(member.user.username, `Seasonal Elo: ${ (rank - this.ratingChange[i].local)?.toFixed(3)} --> ${ rank } (${this.ratingChange[i].local?.toFixed(3)})\nSeasonal Elo: ${ (gRank - this.ratingChange[i].global)?.toFixed(3)} --> ${ gRank } (${this.ratingChange[i].global?.toFixed(3)})`);
+                });
+            }
+            this.channel.send(embed);
+        }
     }
 
     get states() {
@@ -91,6 +110,8 @@ class Game {
     }
 
     async report(scores) {
+        this.parseScore(scores);
+        const teams = ['alpha', 'beta'];
         // Implementation from https://gitlab.com/eternalFPS/PUBobot-discord/-/blob/9b848a8fe3df2c4d815458c2f9a0145048090c97/modules/stats3.py
         // naming scheme is g prefix for 'global elo' used for matchmaking
         const ratings = {
@@ -118,13 +139,11 @@ class Game {
         const Promises = [];
         this.ratingChange = [];
         this.members.forEach(player => {
-            const teams = ['alpha', 'beta'];
             let teamNum;
             if (this.teams.alpha.includes(player)) teamNum = 0;
             else teamNum = 1;
             const team = teams[teamNum];
             const index = this.teams[team].findIndex(x => x.id == player.id);
-            console.log(ratings.new.g, team, index);
             const
                 Ratings = ratings[team][index],
                 GRatings = ratings.g[team][index],
@@ -160,7 +179,7 @@ class Game {
                 sigma: sigNew,
             });
 
-            Promises.push(player.updateDB);
+            Promises.push(player.updateDB());
             this.ratingChange.push({
                 local: gRankDiff,
                 global: rankDiff,
@@ -168,6 +187,7 @@ class Game {
         });
         // Execute all pugger updates asynchronously, reduces time to taken to update ridiculously
         await Promise.all(Promises);
+        this.setDone();
         return this;
     }
 
@@ -182,13 +202,17 @@ class Game {
         } else return 'Only captains can report loss';
     }
 
+    parseScore(score) {
+        if (score[0] == 1) this.winner = 1;
+        else if (score[1] == 1) this.winner = 0;
+        else this.winner = 2; // draw
+    }
+
 }
 
 module.exports = Game;
 module.exports.states = states;
 
-// eslint-disable-next-line no-unused-vars
-const { MessageEmbed, TextChannel } = require('discord.js'), Pickups = require('../structures/Pickups');
 const tick = '✅';
 const no = '⛔';
 
@@ -285,7 +309,7 @@ const matchMaker = async(game) => {
                 .setColor('GOLD')
                 .setDescription(`Players: \n${game.teams.alpha.map(mem => `<@${mem.id}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem.id}>`).join(',')}`);
             addMap(embed, pickup);
-            game.channel.send(game.members.map(mem => `<@${mem.id}>`).join(','), { embed }).catch(console.log);
+            game.channel.send(game.members.map(mem => `<@${mem.id}>`).join(','), { embed });
         } else
             return game.channel.send('Failed to matchmake!');
     } else {
