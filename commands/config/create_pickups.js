@@ -17,5 +17,7 @@ const run = async(message, args = []) => {
 module.exports = {
     name: 'create_pickups',
     aliases: ['newpickups'],
+    description: ` - Create a new pickups.
+    - Usage: \`!create_pickups [Pickups Name] [Size of **one** team]\``,
     run,
 };

@@ -42,5 +42,9 @@ const run = async(message, args = []) => {
 module.exports = {
     name: 'configure_pickups',
     aliases: ['config_pickup', 'set_pickups', 'set_pickup'],
+    description: `- Configure settings for a specific pickups.
+    - This overrides channel-wide settings.
+    - Usage: \`!configure_pickups [Pickup Name] [Settings Name] [arg1] (additional args)\`
+    - To see a list of settings names and options scroll to the last.`,
     run,
 };

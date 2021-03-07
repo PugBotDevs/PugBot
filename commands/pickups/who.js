@@ -24,5 +24,7 @@ const run = async(message) => {
 module.exports = {
     name: 'who',
     aliases: [],
+    description: ` - Get a list of active pickups.
+    - Usage: \`!who\``,
     run,
 };

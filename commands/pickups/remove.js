@@ -45,5 +45,8 @@ const run = async(message) => {
 module.exports = {
     name: 'remove',
     aliases: ['unqueue'],
+    description: ` - Remove from queue of pickups.
+    - Usage: \`!remove [Pickup Name]\`
+    - Quick Tip: use \`-[Pickup Name]\` or -- to leave all pickups queues.`,
     run,
 };

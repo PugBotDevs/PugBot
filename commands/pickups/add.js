@@ -51,5 +51,9 @@ const run = async(message) => {
 module.exports = {
     name: 'add',
     aliases: ['queue'],
+    description: `
+    - Queue to a pickups.
+    - Usage: \`!add [Pickup Name]\`
+    - Quick Tip: use \`+[Pickup Name]\` or \`++\` to join all pickups queues.`,
     run,
 };
