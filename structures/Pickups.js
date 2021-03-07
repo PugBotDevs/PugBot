@@ -7,7 +7,7 @@ class Pickups {
         this.size = opts.size;
 
         // Inherit channel opts
-        this.realOpts = opts.opts;
+        this.realOpts = opts.opts || {};
         this.opts = {};
         Object.assign(this.opts, channelOpts, this.realOpts);
 

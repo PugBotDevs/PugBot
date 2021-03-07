@@ -74,6 +74,9 @@ class Game {
      */
     setOngoing() {
         this.state = states[2];
+        this.members.forEach(x => {
+            x.setGame(this);
+        });
     }
 
     /**
@@ -91,11 +94,11 @@ class Game {
         // Implementation from https://gitlab.com/eternalFPS/PUBobot-discord/-/blob/9b848a8fe3df2c4d815458c2f9a0145048090c97/modules/stats3.py
         // naming scheme is g prefix for 'global elo' used for matchmaking
         const ratings = {
-            alpha: this.teams.alpha.map(x => new ts.Rating(x.elo(this.channel.id).rank, x.elo(this.channel.id).sigma)),
-            beta: this.teams.beta.map(x => new ts.Rating(x.elo(this.channel.id).rank, x.elo(this.channel.id).sigma)),
+            alpha: this.teams.alpha.map(x => new ts.Rating(x.getElo(this.channel.id).rank, x.getElo(this.channel.id).sigma)),
+            beta: this.teams.beta.map(x => new ts.Rating(x.getElo(this.channel.id).rank, x.getElo(this.channel.id).sigma)),
             g: {
-                alpha: this.teams.alpha.map(x => new ts.Rating(x.elo().rank, x.elo().sigma)),
-                beta: this.teams.alpha.map(x => new ts.Rating(x.elo().rank, x.elo().sigma)),
+                alpha: this.teams.alpha.map(x => new ts.Rating(x.getElo().rank, x.getElo().sigma)),
+                beta: this.teams.alpha.map(x => new ts.Rating(x.getElo().rank, x.getElo().sigma)),
             },
             new: {
                 g: {},
@@ -104,14 +107,14 @@ class Game {
 
         // For incorrectly predicted games
         const gWinProb = [0, 0], winProb = [0, 0];
-        gWinProb[0] = ts.gWinProbability(ratings.alpha, ratings.beta);
-        gWinProb[1] = ts.gWinProbability(ratings.beta, ratings.alpha);
-        winProb[0] = ts.gWinProbability(ratings.g.alpha, ratings.g.beta);
-        winProb[1] = ts.gWinProbability(ratings.g.beta, ratings.g.alpha);
+        gWinProb[0] = ts.winProbability(ratings.alpha, ratings.beta);
+        gWinProb[1] = ts.winProbability(ratings.beta, ratings.alpha);
+        winProb[0] = ts.winProbability(ratings.g.alpha, ratings.g.beta);
+        winProb[1] = ts.winProbability(ratings.g.beta, ratings.g.alpha);
 
         // Normal use case
         [ratings.new.alpha, ratings.new.beta] = ts.rate([ratings.alpha, ratings.beta], scores);
-        [ratings.new.g.alpha, ratings.g.alpha ] = ts.rate([ratings.globalAlpha, ratings.globalBeta], scores);
+        [ratings.new.g.alpha, ratings.g.alpha ] = ts.rate([ratings.g.alpha, ratings.g.beta], scores);
         const Promises = [];
         this.ratingChange = [];
         this.members.forEach(player => {
@@ -120,11 +123,12 @@ class Game {
             if (this.teams.alpha.includes(player)) teamNum = 0;
             else teamNum = 1;
             const team = teams[teamNum];
+            const index = this.teams[team].findIndex(x => x.id == player.id);
             const
-                Ratings = ratings[team].find(x => x.id == player.id),
-                GRatings = ratings.g[team].find(x => x.id == player.id),
-                newRatings = ratings.new[team].find(x => x.id == player.id),
-                newGRatings = ratings.new.g[team].find(x => x.id == player.id),
+                Ratings = ratings[team][index],
+                GRatings = ratings.g[team][index],
+                newRatings = ratings.new[team][index],
+                newGRatings = ratings.new.g[team][index],
                 gRankNew = newRatings.mu,
                 rankNew = newGRatings.mu,
                 is_winner = 1 - scores[teamNum],
@@ -215,7 +219,7 @@ const readyHandler = async(game) => {
                 string = `Match was aborted by ${u}`;
                 game.removeMember(u.id);
                 game.notReadyMembers = [];
-                game.queue();
+                game.setQueue();
                 collector.stop('Aborted');
                 message.edit(string);
                 return false;
@@ -227,7 +231,7 @@ const readyHandler = async(game) => {
             if (game.state == states[1]) {
                 string = `${game.notReadyMembers.map(mem => `<@${mem}>`).join(',')} was(were) not ready in time`;
                 message.edit(string);
-                game.queue();
+                game.setQueue();
                 game.notReadyMembers.forEach(mem => {
                     game.removeMember(mem);
                 });
@@ -254,11 +258,10 @@ const refreshReadyState = (game) => {
  */
 const matchMaker = async(game) => {
     const pickup = game.pickups;
-    console.log(pickup.opts);
     if (pickup.opts.team) {
         if (game.members.length == 2) {
-            game.teams.alpha.push(game.members[0].id);
-            game.teams.beta.push(game.members[1].id);
+            game.teams.alpha.push(game.members[0]);
+            game.teams.beta.push(game.members[1]);
         } else {
             switch (game.opts.pick) {
             case 'AUTO': {
@@ -279,7 +282,7 @@ const matchMaker = async(game) => {
             const embed = new MessageEmbed()
                 .setTitle(`${game.name} has started\nTEAMS READY!`)
                 .setColor('GOLD')
-                .setDescription(`Players: \n${game.teams.alpha.map(mem => `<@${mem}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem}>`).join(',')}`);
+                .setDescription(`Players: \n${game.teams.alpha.map(mem => `<@${mem.id}>`).join(',')}\n        **VERSUS**\n${game.teams.beta.map(mem => `<@${mem.id}>`).join(',')}`);
             addMap(embed, pickup);
             game.channel.send(game.members.map(mem => `<@${mem.id}>`).join(','), { embed }).catch(console.log);
         } else
@@ -292,12 +295,10 @@ const matchMaker = async(game) => {
         addMap(embed, game);
         game.channel.send(game.members.map(mem => `<@${mem.id}>`).join(','), { embed });
     }
-    if (pickup.opts.ranked) waitReport(game);
+    if (pickup.opts.ranked) game.setOngoing();
     else game.setDone();
 };
-const waitReport = async(game) => {
-    game.setOngoing();
-};
+
 
 const addMap = (embed, game) => {
     if (game.map)

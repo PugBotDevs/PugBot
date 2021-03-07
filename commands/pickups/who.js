@@ -1,8 +1,12 @@
 const states = require('../../structures/Game').states;
+const { errorEmbed } = require('../../libs/utils');
 
 const { MessageEmbed } = require('discord.js');
+
 const run = async(message) => {
     const pickups = await message.client.pickups.fetchChannel(message.channel);
+    if (pickups.length == 0)
+        return message.reply(errorEmbed('No pickups configured in this channel'));
     const embed = new MessageEmbed()
         .setTitle('Currently active pickups')
         .setColor('GREEN');

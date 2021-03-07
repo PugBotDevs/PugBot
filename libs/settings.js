@@ -1,5 +1,5 @@
 const { parseToBoolean } = require('./utils');
-const team = {
+const teams = {
     boolean: true,
     argLength: 1,
 };
@@ -25,7 +25,7 @@ const booleanExec = (key) => (args, opts) => {
 };
 
 const settings = {
-    team,
+    teams,
     ranked,
     maps,
 };

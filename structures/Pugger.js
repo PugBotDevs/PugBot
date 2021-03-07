@@ -5,8 +5,8 @@ class Pugger {
     constructor(client, data) {
         this.client = client;
         this.elo = {
-            rank: data?.elo || 1400,
-            signum: 25,
+            rank: data?.elo?.rank || 1400,
+            signum: data?.elo?.sigma || 25,
         };
         // Elos mapped by channel id;
         this.elos = data?.elos || {};
@@ -15,13 +15,21 @@ class Pugger {
         this.queued = [];
         this.game = null;
         this.client.puggers.cache.set(this.id, this);
+        return this;
     }
 
     setDefault(id, defaults = { rank: 1400, sigma: 25 }) {
-        this.elos[id] = {
-            rank: defaults.rank,
-            sigma: defaults.sigma,
-        };
+        if (!id) {
+            this.elo = {
+                rank: defaults.rank,
+                sigma: defaults.sigma,
+            };
+        } else {
+            this.elos[id] = {
+                rank: defaults.rank,
+                sigma: defaults.sigma,
+            };
+        }
         return this;
     }
 
@@ -33,19 +41,23 @@ class Pugger {
         };
     }
 
-    elo(id) {
+    getElo(id) {
         if (id) {
             const elo = this.elos[id];
-            if (!elo) this.setDefault(id).elo(id);
+            if (!elo) return this.setDefault(id).getElo(id);
             return elo;
-        } else return this.elo;
+        } else {
+            const elo = this.elo;
+            if (!elo) return this.setDefault().getElo();
+            return this.elo;
+        }
     }
 
     /**
      * @param  {Object} value, { rank: Int, sigma: Int}
      * @param  {String} id
      */
-    eloUpdate(value, id) {
+    updateElo(value, id) {
         if (typeof value !== 'object') throw 'Elo can only be an object of {rank: Int, sigma: Int}';
         if (id)
             this.elos[id] = value;
@@ -89,6 +101,11 @@ class Pugger {
 
     async updateDB() {
         return this.client.db.users.set(this.id, this.deserialize());
+    }
+
+    setGame(game) {
+        this.game = game;
+        return this;
     }
 
 }
