@@ -16,7 +16,10 @@ const maps = {
         return opts;
     },
 };
-
+const check_in = {
+    boolean: true,
+    argLength: 1,
+};
 // returns a function which can be executed by config command;
 const booleanExec = (key) => (args, opts) => {
     const option = args[0];
@@ -28,6 +31,7 @@ const settings = {
     teams,
     ranked,
     maps,
+    check_in,
 };
 Object.entries(settings).forEach((([k, v]) => {
     if (v.boolean) settings[k].run = booleanExec(k);

@@ -217,10 +217,9 @@ const tick = '✅';
 const no = '⛔';
 
 const readyHandler = async(game) => {
-    const manager = game.client.pickups;
-    const pickups = (await manager.fetchChannel(game.channel));
-
     game.setReadyWait();
+    if (!game.opts.check_in) return matchMaker(game);
+
     if (game.members.length > game.maxSize) game.members = game.members.slice(0, game.maxSize + 1);
     game.notReadyMembers = Array.from(game.members.map(x => x.id));
     let string = refreshReadyState(game);
@@ -238,7 +237,7 @@ const readyHandler = async(game) => {
                 } else {
                     game.setOngoing();
                     message.delete();
-                    matchMaker(game, pickups);
+                    matchMaker(game);
                 }
             } else if (r.emoji.name == no) {
                 string = `Match was aborted by ${u}`;

@@ -69,4 +69,5 @@ module.exports.defaultOpts = {
     readyWait: 120000,
     ranked: false,
     teams: true,
+    check_in: true,
 };
