@@ -71,6 +71,13 @@ class Game {
      */
     setReadyWait() {
         this.state = states[1];
+        this.members.forEach(member => {
+            member.queued.splice(member.queued.indexOf(this), 1);
+            member.setGame(this);
+            member.queued.forEach(game => {
+                member.unqueue(game.channel, game.name);
+            });
+        });
         return this;
     }
 
@@ -88,6 +95,9 @@ class Game {
      * Changes the state of match to done
      */
     setDone() {
+        this.members.forEach(member => {
+            member.game = null;
+        });
         this.state = states[3];
         if (this.opts.ranked) {
             const embed = new MessageEmbed({ title: `Match ${this.name}(${this.id}) has ended`, color: 'GREEN' });
@@ -98,7 +108,7 @@ class Game {
                 this.members.forEach((member, i) => {
                     const rank = member.getElo(this.channel.id).rank?.toFixed(3);
                     const gRank = member.getElo().rank?.toFixed(3);
-                    embed.addField(member.user.username, `Seasonal Elo: ${ (rank - this.ratingChange[i].local)?.toFixed(3)} --> ${ rank } (${this.ratingChange[i].local?.toFixed(3)})\nSeasonal Elo: ${ (gRank - this.ratingChange[i].global)?.toFixed(3)} --> ${ gRank } (${this.ratingChange[i].global?.toFixed(3)})`);
+                    embed.addField(member.user.username, `Seasonal Elo: ${ (rank - this.ratingChange[i].local)?.toFixed(3)} --> ${ rank } (${this.ratingChange[i].local?.toFixed(3)})\nAll-time Elo: ${ (gRank - this.ratingChange[i].global)?.toFixed(3)} --> ${ gRank } (${this.ratingChange[i].global?.toFixed(3)})`);
                 });
             }
             this.channel.send(embed);
@@ -192,6 +202,7 @@ class Game {
     }
 
     tryReportLoss(pugger) {
+        if (this.state !== states[2]) return 'Match is not in reporting stage yet!';
         const index = this.captains.indexOf(pugger);
         if (index == 0) {
             // Alpha has reported loss

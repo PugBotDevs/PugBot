@@ -87,8 +87,8 @@ class Pugger {
         } else return false;
     }
 
-    async unqueue(channelId, pickup) {
-        const gameIndex = this.queued.findIndex(g => g.name == pickup && g.channel == channelId);
+    async unqueue(channel, pickup) {
+        const gameIndex = this.queued.findIndex(g => g.name == pickup && g.channel == channel);
         if (gameIndex != -1) {
             const game = this.queued[gameIndex];
             const res = game.removeMember(this.id);
