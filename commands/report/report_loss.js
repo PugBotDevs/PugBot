@@ -1,6 +1,6 @@
 const { errorEmbed } = require('../../libs/utils');
 
-const run = async(message, args) => {
+const run = async(message) => {
     const pugger = await message.client.puggers.fetch(message.author);
     if (!pugger) return;
     if (!pugger.game) return message.reply(errorEmbed('You are not in any active game that requires reporting!'));
