@@ -114,7 +114,7 @@ class Game {
 
         // Normal use case
         [ratings.new.alpha, ratings.new.beta] = ts.rate([ratings.alpha, ratings.beta], scores);
-        [ratings.new.g.alpha, ratings.g.alpha ] = ts.rate([ratings.g.alpha, ratings.g.beta], scores);
+        [ratings.new.g.alpha, ratings.new.g.beta ] = ts.rate([ratings.g.alpha, ratings.g.beta], scores);
         const Promises = [];
         this.ratingChange = [];
         this.members.forEach(player => {
@@ -124,6 +124,7 @@ class Game {
             else teamNum = 1;
             const team = teams[teamNum];
             const index = this.teams[team].findIndex(x => x.id == player.id);
+            console.log(ratings.new.g, team, index);
             const
                 Ratings = ratings[team][index],
                 GRatings = ratings.g[team][index],
