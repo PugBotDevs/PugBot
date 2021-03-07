@@ -9,3 +9,6 @@ Pickups bot
 - Start a MongoDB server or spawn a cluster in Atlas and add `DB=YOUR_CONNECTION_STRING` to `.env`
 - run `npm ci`
 - run `npm start`
+
+# Support
+- Join our [discord server](https://discord.gg/CkgduycuZC) to test the bot or to ask for help
