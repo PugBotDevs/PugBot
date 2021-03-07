@@ -25,11 +25,9 @@ const run = async(message) => {
     } else {
         const channel = await message.client.pickups.fetchChannel(message.channel);
         for (const { name } of channel) {
-            const res = await pugger.queue(message.channel.id, name);
-            if (res) {
-                if (res.isFull) res.game.readyHandler();
+            const res = await pugger.queue(message.channel, name);
+            if (res)
                 joined.push(res.game);
-            }
         }
     }
 
@@ -42,7 +40,7 @@ const run = async(message) => {
                 embed.addField(`${game.name}(${game.id})`, `${game.size}/${game.maxSize} people in queue`);
             });
         } else {
-            embed.setTitle(`Succesfully added to queue of ${joined[0].name}`);
+            embed.setTitle(`Succesfully added to queue of ${joined[0].name}(${joined[0].id})`);
             embed.setDescription(`${joined[0].size}/${joined[0].maxSize} people in queue`);
         }
         message.reply(embed);
