@@ -85,6 +85,10 @@ class Game {
      * Changes the state of the game to progress (Match is ongoing)
      */
     setOngoing() {
+        this.members.forEach(pugger => {
+            pugger.queued = [];
+            pugger.game = this;
+        });
         this.state = states[2];
         this.members.forEach(x => {
             x.setGame(this);
@@ -95,9 +99,7 @@ class Game {
      * Changes the state of match to done
      */
     setDone() {
-        this.members.forEach(member => {
-            member.game = null;
-        });
+        this.members.forEach(pugger => pugger.game = null);
         this.state = states[3];
         if (this.opts.ranked) {
             const embed = new MessageEmbed({ title: `Match ${this.name}(${this.id}) has ended`, color: 'GREEN' });
@@ -333,7 +335,6 @@ const matchMaker = async(game) => {
     if (pickup.opts.ranked) game.setOngoing();
     else game.setDone();
 };
-
 
 const addMap = (embed, game) => {
     if (game.map)
