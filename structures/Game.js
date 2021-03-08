@@ -16,6 +16,11 @@ class Game {
         this.teams = {
             alpha: [],
             beta: [],
+            toPuggers: () => {
+                const alpha = this.teams.alpha.map(uid => this.members.find(p => p.id == uid));
+                const beta = this.teams.beta.map(uid => this.members.find(p => p.id == uid));
+                return { alpha, beta };
+            },
         };
         this.map = this.opts.maps?.[~~(Math.random() * this.opts.maps.length)];
         return this;
@@ -70,6 +75,10 @@ class Game {
      * Changes the state of the game to progress (Match is ongoing)
      */
     setOngoing() {
+        this.members.forEach(pugger => {
+            pugger.queued = [];
+            pugger.game = this;
+        });
         this.state = states[2];
     }
 
@@ -77,6 +86,7 @@ class Game {
      * Changes the state of match to done
      */
     setDone() {
+        this.members.forEach(pugger => pugger.game = null);
         this.state = states[3];
     }
 
@@ -198,6 +208,7 @@ const matchMaker = (game, pickupsChannel) => {
     if (pickup.opts.ranked) waitReport(game);
     else game.setDone();
 };
+
 const waitReport = async(game) => {
     game.setOngoing();
 };
