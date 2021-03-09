@@ -39,6 +39,16 @@ class PickupsManager {
         });
     }
 
+    async fetch(discordChannel, name) {
+        const pickupsChannel = await this.fetchChannel(discordChannel);
+        if (!pickupsChannel) return undefined;
+
+        const pickups = pickupsChannel.find(p => p.name == name);
+        if (!pickups) return undefined;
+
+        return pickups;
+    }
+
     async createPickups(options) {
         const { channel, name } = options;
 
