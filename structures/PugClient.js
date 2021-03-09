@@ -35,8 +35,9 @@ class PugClient extends Client {
                     try {
                         const command = require(require('path').join(path, dir, commandPath));
                         if (command.name) {
+                            command.module = dir;
                             this.commands.set(command.name, command);
-                            command.aliases.forEach(alias => this.aliases.set(alias, command.name));
+                            command.aliases?.forEach(alias => this.aliases.set(alias, command.name));
                         }
                     } catch (error) {
                         console.error(`Failed to load command: ${commandPath}\n${error.stack || error}`);

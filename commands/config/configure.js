@@ -34,5 +34,7 @@ const run = async(message, args = []) => {
 module.exports = {
     name: 'configure',
     aliases: ['config', 'set'],
+    description: `- Configure settings for channel-wide pickups, this will act as a default, if you haven't configured specific settings.
+    - Usage: \`!configure [Settings Name] [args1] (additional args)\``,
     run,
 };

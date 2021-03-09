@@ -22,6 +22,11 @@ class Game {
         this.teams = {
             alpha: [],
             beta: [],
+            toPuggers: () => {
+                const alpha = this.teams.alpha.map(uid => this.members.find(p => p.id == uid));
+                const beta = this.teams.beta.map(uid => this.members.find(p => p.id == uid));
+                return { alpha, beta };
+            },
         };
         this.captains = [];
         this.map = this.opts.maps?.[~~(Math.random() * this.opts.maps.length)];
@@ -334,6 +339,20 @@ const matchMaker = async(game) => {
     }
     if (pickup.opts.ranked) game.setOngoing();
     else game.setDone();
+};
+
+const waitReport = async(game) => {
+    game.setOngoing();
+};
+
+const shuffle = (array) => {
+    let temp;
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = ~~(Math.random() * (i + 1));
+        temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
 };
 
 const addMap = (embed, game) => {

@@ -14,5 +14,7 @@ const run = async(message, args = '') => {
 module.exports = {
     name: 'remove_pickups',
     aliases: ['remp'],
+    description: ` - Remove a pickups.
+    - Usage: \`!remove_pickups [Pickups Name]\``,
     run,
 };
