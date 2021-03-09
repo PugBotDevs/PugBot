@@ -1,5 +1,4 @@
 const run = async(message, args = '') => {
-    args = args.split(' ');
     if (!args || args.length != 1)
         return message.reply('I Need one argument (Pickups Name)');
 

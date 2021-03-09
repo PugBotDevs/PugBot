@@ -4,7 +4,10 @@ class Pugger {
 
     constructor(client, data) {
         this.client = client;
-        this.globalElo = data?.globalElo || 1400;
+        this.elo = {
+            rank: data?.elo?.rank || 1400,
+            signum: data?.elo?.sigma || 25,
+        };
         // Elos mapped by channel id;
         this.elos = data?.elos || {};
         this.id = data?.user?.id || data.id;
@@ -12,33 +15,54 @@ class Pugger {
         this.queued = [];
         this.game = null;
         this.client.puggers.cache.set(this.id, this);
+        return this;
     }
 
-    setDefault(id) {
-        this.elos[id] = 1400;
+    setDefault(id, defaults = { rank: 1400, sigma: 25 }) {
+        if (!id) {
+            this.elo = {
+                rank: defaults.rank,
+                sigma: defaults.sigma,
+            };
+        } else {
+            this.elos[id] = {
+                rank: defaults.rank,
+                sigma: defaults.sigma,
+            };
+        }
         return this;
     }
 
     deserialize() {
         return {
-            globalElo: this.globalElo,
+            elo: this.elo,
             elos: this.elos,
             id: this.id,
         };
     }
 
-    elo(id) {
-        if (id)
-            return this.elos[id];
-        else return this.globalElo;
+    getElo(id) {
+        if (id) {
+            const elo = this.elos[id];
+            if (!elo) return this.setDefault(id).getElo(id);
+            return elo;
+        } else {
+            const elo = this.elo;
+            if (!elo) return this.setDefault().getElo();
+            return this.elo;
+        }
     }
 
-    eloUpdate(value, id) {
-        if (typeof value == 'undefined') throw 'Elo can\'t be undefined';
+    /**
+     * @param  {Object} value, { rank: Int, sigma: Int}
+     * @param  {String} id
+     */
+    updateElo(value, id) {
+        if (typeof value !== 'object') throw 'Elo can only be an object of {rank: Int, sigma: Int}';
         if (id)
             this.elos[id] = value;
         else
-            this.globalElo = value;
+            this.elo = value;
         return this;
     }
 
@@ -63,8 +87,8 @@ class Pugger {
         } else return false;
     }
 
-    async unqueue(channelId, pickup) {
-        const gameIndex = this.queued.findIndex(g => g.name == pickup && g.channel == channelId);
+    async unqueue(channel, pickup) {
+        const gameIndex = this.queued.findIndex(g => g.name == pickup && g.channel == channel);
         if (gameIndex != -1) {
             const game = this.queued[gameIndex];
             const res = game.removeMember(this.id);
@@ -77,6 +101,11 @@ class Pugger {
 
     async updateDB() {
         return this.client.db.users.set(this.id, this.deserialize());
+    }
+
+    setGame(game) {
+        this.game = game;
+        return this;
     }
 
 }

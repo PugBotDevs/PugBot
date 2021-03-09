@@ -17,13 +17,13 @@ const run = async(message) => {
     const left = new Array();
     if (pickupsNames instanceof Array) {
         for (const pickupName of pickupsNames) {
-            const res = await pugger.unqueue(message.channel.id, pickupName);
+            const res = await pugger.unqueue(message.channel, pickupName);
             if (res) left.push(res);
         }
     } else {
-        const channel = await message.client.pickups.fetchChannel(message.channel.id);
+        const channel = await message.client.pickups.fetchChannel(message.channel);
         for (const { name } of channel) {
-            const res = await pugger.unqueue(message.channel.id, name);
+            const res = await pugger.unqueue(message.channel, name);
             if (res) left.push(res);
         }
     }

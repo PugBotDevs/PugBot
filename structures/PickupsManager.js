@@ -47,13 +47,12 @@ class PickupsManager {
             pickupsConf = {
                 arr: new Array(),
                 count: 1,
-                opts: {},
+                opts: Pickups.defaultOpts,
             };
         }
         if (pickupsConf.arr.find(x => x.name == name))
             return 'Pickups with that name already exists!';
 
-        Object.assign(options, { opts: Pickups.defaultOpts });
         const pickups = new Pickups(this.client, options, pickupsConf.opts);
 
         pickupsConf.arr.push(pickups.deserialize());

@@ -1,3 +1,4 @@
+const ts = require('ts-trueskill');
 const { MessageEmbed } = require('discord.js');
 
 const errorEmbed = (description) => (
@@ -25,8 +26,38 @@ const parseToBoolean = (x) => {
     return truth.includes(x);
 };
 
+
+const combinations = (array, size) => {
+    function p(t, i) {
+        if (t.length === size) {
+            result.push(t);
+            return;
+        }
+        if (i + 1 > array.length)
+            return;
+
+        p(t.concat(array[i]), i + 1);
+        p(t, i + 1);
+    }
+
+    const result = [];
+    p([], 0);
+    return result;
+};
+
+const shuffle = (array) => {
+    let temp;
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = ~~(Math.random() * (i + 1));
+        temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+};
 module.exports = {
     errorEmbed,
     embed: sendEmbed,
     parseToBoolean,
+    combinations,
+    shuffle,
 };

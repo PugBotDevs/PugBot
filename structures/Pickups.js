@@ -7,7 +7,7 @@ class Pickups {
         this.size = opts.size;
 
         // Inherit channel opts
-        this.realOpts = opts.opts;
+        this.realOpts = opts.opts || {};
         this.opts = {};
         Object.assign(this.opts, channelOpts, this.realOpts);
 
@@ -69,4 +69,5 @@ module.exports.defaultOpts = {
     readyWait: 120000,
     ranked: false,
     teams: true,
+    check_in: true,
 };
