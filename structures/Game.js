@@ -341,19 +341,6 @@ const matchMaker = async(game) => {
     else game.setDone();
 };
 
-const waitReport = async(game) => {
-    game.setOngoing();
-};
-
-const shuffle = (array) => {
-    let temp;
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = ~~(Math.random() * (i + 1));
-        temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-};
 
 const addMap = (embed, game) => {
     if (game.map)

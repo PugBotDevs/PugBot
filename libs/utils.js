@@ -1,4 +1,3 @@
-const ts = require('ts-trueskill');
 const { MessageEmbed } = require('discord.js');
 
 const errorEmbed = (description) => (
