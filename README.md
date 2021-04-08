@@ -1,3 +1,7 @@
+```
+PROJECT HAS BEEN ARCHIVED AND DEPRECATED SINCE PUBOBOT v2 WAS RELEASED
+```
+
 # Pugbot
 Pickups bot 
 # Engines
